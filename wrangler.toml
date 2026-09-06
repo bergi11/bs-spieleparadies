@@ -1,6 +1,16 @@
 name = "bs-spieleparadies"
-compatibility_date = "2024-09-01"
-pages_build_output_dir = "dist"
+main = "worker/index.ts"
+compatibility_date = "2026-09-01"
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+# Ohne Treffer im dist-Verzeichnis wird index.html ausgeliefert, damit
+# direkt aufgerufene Unterseiten nicht ins Leere laufen.
+not_found_handling = "single-page-application"
+# Nur /api/* geht durch den Worker. Alles andere liefert Cloudflare direkt
+# als statische Datei aus, ohne den Worker überhaupt zu starten.
+run_worker_first = ["/api/*"]
 
 [[d1_databases]]
 binding = "DB"

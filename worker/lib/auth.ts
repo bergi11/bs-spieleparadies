@@ -1,15 +1,11 @@
+import type { Env } from './http';
+
 /**
  * Sehr schlanke Sitzungsverwaltung: ein gemeinsames Seitenpasswort.
  * Nach erfolgreichem Login bekommt der Browser ein signiertes Cookie
  * ("<ablauf>.<hmac>"). Es gibt keine Nutzer-Anmeldung – die Profile auf
  * der Seite sind nur Namensschilder, kein Sicherheitsmerkmal.
  */
-
-export interface Env {
-  DB: D1Database;
-  SITE_PASSWORD: string;
-  SESSION_SECRET: string;
-}
 
 export const COOKIE_NAME = 'bsp_session';
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 180; // ~6 Monate
@@ -55,7 +51,7 @@ export function clearSessionCookie(): string {
 
 export async function hasValidSession(request: Request, env: Env): Promise<boolean> {
   const cookie = request.headers.get('Cookie') ?? '';
-  const match = cookie.match(new RegExp(`(?:^|;\s*)${COOKIE_NAME}=([^;]+)`));
+  const match = cookie.match(new RegExp(`(?:^|;\\s*)${COOKIE_NAME}=([^;]+)`));
   if (!match) return false;
 
   const [expires, signature] = decodeURIComponent(match[1]).split('.');
@@ -63,15 +59,4 @@ export async function hasValidSession(request: Request, env: Env): Promise<boole
   if (!Number.isFinite(Number(expires)) || Number(expires) < Date.now()) return false;
 
   return safeEqual(signature, await hmac(env.SESSION_SECRET, expires));
-}
-
-export function json(data: unknown, init: ResponseInit = {}): Response {
-  return new Response(JSON.stringify(data), {
-    ...init,
-    headers: { 'Content-Type': 'application/json; charset=utf-8', ...(init.headers ?? {}) },
-  });
-}
-
-export function error(status: number, message: string): Response {
-  return json({ error: message }, { status });
 }

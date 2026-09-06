@@ -6,12 +6,12 @@ Spielständen.
 
 ## Aufbau
 
-| Teil            | Technik                              |
-| --------------- | ------------------------------------ |
-| Frontend        | React + TypeScript, gebaut mit Vite  |
-| Backend         | Cloudflare Pages Functions (`/api/*`)|
-| Datenbank       | Cloudflare D1 (SQLite)               |
-| Hosting         | Cloudflare Pages (kostenloser Tarif) |
+| Teil      | Technik                                |
+| --------- | -------------------------------------- |
+| Frontend  | React + TypeScript, gebaut mit Vite    |
+| Backend   | Cloudflare Worker (`worker/`)          |
+| Datenbank | Cloudflare D1 (SQLite)                 |
+| Hosting   | Cloudflare Workers (kostenloser Tarif) |
 
 Es gibt ein gemeinsames Passwort für die ganze Seite. Die Profile dahinter sind
 nur Namensschilder zum Auseinanderhalten der Spielstände – kein Login.
@@ -23,11 +23,22 @@ src/
     wordle/
   screens/        Login, Profilauswahl, Launchpad
   lib/            API-Client, Spielstand-Hook, Mini-Router
-functions/
-  api/            Endpunkte: login, session, users, saves
-  lib/auth.ts     signiertes Sitzungs-Cookie
+worker/
+  index.ts        Einstiegspunkt: Router und Zugriffsschutz
+  routes/         die Endpunkte: login, session, users, saves
+  lib/            HTTP-Hilfen und signiertes Sitzungs-Cookie
 schema.sql        Tabellen für D1
 ```
+
+### Wie die Anfragen laufen
+
+Statische Dateien liefert Cloudflare direkt aus `dist/` aus. Nur `/api/*` geht
+durch den Worker – das legt `run_worker_first` in [`wrangler.toml`](wrangler.toml)
+fest. Alles andere startet den Worker gar nicht erst.
+
+Ein neuer Endpunkt braucht deshalb zwei Dinge: einen Handler in `worker/routes/`
+und einen Eintrag in der `ROUTES`-Tabelle in [`worker/index.ts`](worker/index.ts).
+Pfade, die dort nicht stehen, antworten mit 404, falsche Methoden mit 405.
 
 ## Einrichtung
 
@@ -64,16 +75,15 @@ SITE_PASSWORD=hier-euer-passwort
 SESSION_SECRET=irgendeine-lange-zufallszeichenkette
 ```
 
-Für die veröffentlichte Seite dieselben zwei Werte als Secrets hinterlegen –
-entweder im Cloudflare-Dashboard unter *Pages → Settings → Environment
-variables* oder per CLI:
+Für die veröffentlichte Seite dieselben zwei Werte als Secrets hinterlegen.
+Sie gehören **nicht** unter `[vars]` in die `wrangler.toml` – die liegt im Repo.
 
 ```bash
-npx wrangler pages secret put SITE_PASSWORD
+npx wrangler secret put SITE_PASSWORD
 ```
 
 ```bash
-npx wrangler pages secret put SESSION_SECRET
+npx wrangler secret put SESSION_SECRET
 ```
 
 ### 3. Lokal entwickeln
@@ -85,10 +95,12 @@ npm run dev
 ```
 
 ```bash
-npx wrangler pages dev
+npx wrangler dev
 ```
 
-Vite liefert das Frontend aus und reicht `/api`-Anfragen an Wrangler weiter.
+Vite liefert das Frontend mit Hot Reload aus und reicht `/api`-Anfragen an
+Wrangler auf Port 8787 weiter. Wer nur den gebauten Stand sehen will, kommt mit
+`npm run build` und `npx wrangler dev` allein aus.
 
 ### 4. Veröffentlichen
 
@@ -96,9 +108,10 @@ Vite liefert das Frontend aus und reicht `/api`-Anfragen an Wrangler weiter.
 npm run deploy
 ```
 
-Alternativ das Repo im Cloudflare-Dashboard mit Pages verbinden – dann baut
-jeder Push auf `main` automatisch (Build-Befehl `npm run build`,
-Ausgabeverzeichnis `dist`).
+Alternativ das Repo im Cloudflare-Dashboard verbinden: **Workers & Pages →
+Create → Workers → Import a repository**. Build-Befehl `npm run build`,
+Deploy-Befehl `npx wrangler deploy`. Dann veröffentlicht jeder Push auf `main`
+automatisch.
 
 ## Ein Spiel hinzufügen
 
@@ -111,7 +124,7 @@ Ausgabeverzeichnis `dist`).
 
 ## Wortlisten
 
-Die Listen für *Wörtchen* liegen fertig als JSON im Repo. `scripts/build-words.mjs`
+Die Listen für *Wörtchen* liegen fertig als JSON im Repo. `npm run words`
 erzeugt sie neu aus den Originalquellen:
 
 - Lösungswörter: kuratierte Liste aus [wordle-de](https://github.com/wordle-de/wordle-de.github.io) (MIT)

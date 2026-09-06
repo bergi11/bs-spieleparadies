@@ -1,4 +1,4 @@
-import { type Env, error, json } from '../lib/auth';
+import { type Handler, error, json } from '../lib/http';
 
 interface UserRow {
   id: string;
@@ -10,14 +10,14 @@ interface UserRow {
 
 const NAME_MAX = 20;
 
-export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
+export const listUsers: Handler = async (_request, env) => {
   const { results } = await env.DB.prepare(
     'SELECT id, name, avatar, color, created_at FROM users ORDER BY created_at',
   ).all<UserRow>();
   return json({ users: results ?? [] });
 };
 
-export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+export const createUser: Handler = async (request, env) => {
   let body: { name?: unknown; avatar?: unknown; color?: unknown };
   try {
     body = (await request.json()) as typeof body;
@@ -33,7 +33,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     id: crypto.randomUUID(),
     name,
     avatar: typeof body.avatar === 'string' && body.avatar ? body.avatar.slice(0, 8) : '🎮',
-    color: typeof body.color === 'string' && /^#[0-9a-f]{6}$/i.test(body.color) ? body.color : '#7c5cff',
+    color:
+      typeof body.color === 'string' && /^#[0-9a-f]{6}$/i.test(body.color) ? body.color : '#7c5cff',
     created_at: new Date().toISOString(),
   };
 
@@ -57,7 +58,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
  * auf ON DELETE CASCADE zu verlassen – so bleibt es auch dann korrekt, wenn
  * Fremdschlüssel in der Datenbank einmal nicht erzwungen werden.
  */
-export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
+export const deleteUser: Handler = async (request, env) => {
   const id = new URL(request.url).searchParams.get('id');
   if (!id) return error(400, 'Parameter "id" fehlt.');
 

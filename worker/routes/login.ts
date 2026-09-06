@@ -1,9 +1,10 @@
-import { type Env, createSessionCookie, error, json } from '../lib/auth';
+import { type Handler, error, json } from '../lib/http';
+import { createSessionCookie } from '../lib/auth';
 
 /** Kleine Bremse gegen stures Durchprobieren des Seitenpassworts. */
 const DELAY_ON_FAILURE_MS = 700;
 
-export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+export const login: Handler = async (request, env) => {
   let password: unknown;
   try {
     ({ password } = (await request.json()) as { password?: unknown });

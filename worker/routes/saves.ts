@@ -1,4 +1,4 @@
-import { type Env, error, json } from '../lib/auth';
+import { type Handler, error, json } from '../lib/http';
 
 /**
  * Spielstände. Der Inhalt von `state` ist bewusst nicht festgelegt – jedes
@@ -8,7 +8,7 @@ import { type Env, error, json } from '../lib/auth';
 const MAX_STATE_BYTES = 64 * 1024;
 
 /** GET /api/saves?user=<id>[&game=<id>] */
-export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
+export const readSave: Handler = async (request, env) => {
   const params = new URL(request.url).searchParams;
   const userId = params.get('user');
   const gameId = params.get('game');
@@ -41,7 +41,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
 };
 
 /** PUT /api/saves  { userId, gameId, state } */
-export const onRequestPut: PagesFunction<Env> = async ({ request, env }) => {
+export const writeSave: Handler = async (request, env) => {
   let body: { userId?: unknown; gameId?: unknown; state?: unknown };
   try {
     body = (await request.json()) as typeof body;

@@ -5,10 +5,9 @@ export default defineConfig({
   plugins: [react()],
   server: {
     // `npm run dev` liefert nur das Frontend aus. Damit die /api-Routen
-    // funktionieren, parallel `npx wrangler pages dev dist` laufen lassen
-    // oder direkt gegen den Wrangler-Port proxien:
+    // funktionieren, parallel `npx wrangler dev` laufen lassen:
     proxy: {
-      '/api': 'http://127.0.0.1:8788',
+      '/api': 'http://127.0.0.1:8787',
     },
   },
 });

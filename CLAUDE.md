@@ -24,12 +24,12 @@ Diese Punkte sind gesetzt. Wenn eine Aufgabe dagegen läuft, erst nachfragen.
 | Teil      | Womit                                             |
 | --------- | ------------------------------------------------- |
 | Frontend  | React 18 + TypeScript, gebaut mit Vite            |
-| Backend   | Cloudflare Pages Functions unter `functions/api/` |
+| Backend   | Cloudflare Worker unter `worker/`                 |
 | Datenbank | Cloudflare D1 (SQLite)                            |
 
 ```bash
 npm run dev        # Frontend; /api geht per Proxy an Wrangler auf Port 8788
-npm run preview    # Wrangler mit Functions und lokaler D1
+npm run preview    # Wrangler mit Worker und lokaler D1
 npm run typecheck  # prüft Frontend und Functions getrennt
 npm run build
 ```
@@ -37,9 +37,17 @@ npm run build
 Voraussetzung ist **Node 22 oder neuer**: Wrangler verlangt >= 22, Vite >= 20.19.
 
 `npm run typecheck` läuft über zwei getrennte Projekte: `tsconfig.json` für
-`src/` mit DOM-Typen, `functions/tsconfig.json` für das Backend mit den
+`src/` mit DOM-Typen, `worker/tsconfig.json` für das Backend mit den
 Workers-Typen. Beide zusammen in einem Projekt kollidieren bei `Request` und
 `Response` – die Trennung bitte nicht zusammenführen.
+
+## Backend-Routing
+
+Statische Dateien liefert Cloudflare direkt aus `dist/` aus; nur `/api/*` geht
+durch den Worker (`run_worker_first` in `wrangler.toml`). Eine dateibasierte
+Weiterleitung wie bei Pages gibt es nicht: ein neuer Endpunkt braucht einen
+Handler in `worker/routes/` **und** einen Eintrag in der `ROUTES`-Tabelle in
+`worker/index.ts`. Fehlt der Eintrag, antwortet der Pfad mit 404.
 
 ## Konventionen
 
@@ -57,7 +65,7 @@ Workers-Typen. Beide zusammen in einem Projekt kollidieren bei `Request` und
 ## Anmeldung und Profile
 
 Es gibt **ein gemeinsames Passwort** für die ganze Seite (`SITE_PASSWORD`).
-Nach dem Login setzt `functions/lib/auth.ts` ein signiertes HttpOnly-Cookie.
+Nach dem Login setzt `worker/lib/auth.ts` ein signiertes HttpOnly-Cookie.
 
 Die Profile dahinter sind **reine Namensschilder, kein Sicherheitsmerkmal**.
 Wer die Seite offen hat, kann jedes Profil auswählen und dessen Spielstände
@@ -90,7 +98,8 @@ nicht umbenennen oder entfernen.
 ## Nicht ins Repo
 
 `.dev.vars`, echte Passwörter, `SESSION_SECRET`. Secrets für die
-veröffentlichte Seite gehören zu `wrangler pages secret put`.
+veröffentlichte Seite gehören zu `wrangler secret put` – niemals unter
+`[vars]` in die `wrangler.toml`, die liegt im Repo.
 
 ## Stand der Dinge
 
