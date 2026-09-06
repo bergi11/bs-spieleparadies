@@ -5,5 +5,4 @@ pages_build_output_dir = "dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "bs-spieleparadies"
-# Nach `wrangler d1 create bs-spieleparadies` die ausgegebene ID hier eintragen:
-database_id = "PLACEHOLDER_NACH_D1_CREATE_EINTRAGEN"
+database_id = "eecc6723-f813-49d6-9bb3-dd43bc4b259c"
