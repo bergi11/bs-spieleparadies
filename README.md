@@ -122,13 +122,38 @@ automatisch.
 3. Eintrag in `src/games/registry.ts` ergänzen. Launchpad und Routing ziehen
    sich alles Weitere von dort.
 
-## Wortlisten
+## Wortlisten und Level
 
-Die Listen für *Wörtchen* liegen fertig als JSON im Repo. `npm run words`
-erzeugt sie neu aus den Originalquellen:
+Alle Wortdaten liegen fertig als JSON im Repo und werden nicht von Hand
+gepflegt. Beide Spiele trennen dabei zwei Listen: eine großzügige, die
+Eingaben *akzeptiert*, und eine strenge, aus der *angezeigt* wird. Die
+großzügigen Listen enthalten viel Obskures, die strengen nur Wörter, die man
+tatsächlich kennt.
+
+### Wörtchen
+
+`npm run words` erzeugt die Listen neu aus den Originalquellen:
 
 - Lösungswörter: kuratierte Liste aus [wordle-de](https://github.com/wordle-de/wordle-de.github.io) (MIT)
 - Zusätzliche erlaubte Rateworte: [Wortliste von davidak](https://github.com/davidak/wortliste)
 
 Die 1017 Lösungswörter reichen für rund 2,8 Jahre tägliche Rätsel, danach
 beginnt die Reihenfolge von vorn.
+
+### Wortsalat
+
+`npm run words:puzzle` erzeugt `levels.json` – 120 fertige Level mit
+Grundwort, Kreuzworträtsel und Bonuswörtern:
+
+- Erlaubte Eingaben: [Wortliste des Spiels Tanglet](https://github.com/kamilmielnik/scrabble-dictionaries)
+- Häufigkeit für die Auswahl der angezeigten Wörter: [FrequencyWords](https://github.com/hermitdave/FrequencyWords)
+
+Die Gitter entstehen zur Bauzeit, nicht im Browser. Dadurch ist jedes Level
+garantiert lösbar und passt in maximal 9×9 Felder. Der Generator wirft
+Grundwörter weg, deren Gitter zu groß würde oder die zu wenige Teilwörter
+hergeben – deshalb liefert er weniger Level, als er Grundwörter durchprobiert.
+
+Zwei Sperrlisten im Skript halten sauber, was die Häufigkeitsliste anspült:
+Vornamen und englische Wörter aus den Untertiteln, und getrennt davon
+Artikel, Pronomen und Hilfsverben. Letztere ergäben zwar gültige, aber öde
+Rätsel – als Bonuswort zählen sie weiterhin.

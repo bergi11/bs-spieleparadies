@@ -645,3 +645,126 @@ h3 {
   gap: 0.5rem;
   margin-top: 1.25rem;
 }
+
+/* ---------- Wortsalat ---------- */
+
+.bonus-count {
+  min-width: 2.75rem;
+  text-align: right;
+  color: var(--present);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.puzzle-board {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  position: relative;
+}
+
+/* Das Gitter kommt als SVG, damit die Buchstaben ohne Rechnerei mit der
+   Zellgröße mitwachsen – egal ob 4x4 oder 9x9. */
+.puzzle-grid {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.cell {
+  fill: var(--surface-2);
+  transition: fill 0.25s ease;
+}
+
+.cell-found {
+  fill: var(--correct);
+}
+
+.cell-letter {
+  fill: #12121a;
+  font-size: 5px;
+  font-weight: 700;
+}
+
+.draft {
+  min-height: 2.25rem;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.bonus-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  justify-content: center;
+  padding: 0 1rem 0.5rem;
+}
+
+.bonus-words span {
+  font-size: 0.7rem;
+  color: var(--present);
+  border: 1px solid var(--present);
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+}
+
+.wheel-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 0 1rem calc(0.75rem + env(safe-area-inset-bottom));
+}
+
+.wheel {
+  width: min(78vw, 20rem);
+  aspect-ratio: 1;
+  /* Ohne das scrollt die Seite beim Ziehen, statt Buchstaben zu verbinden. */
+  touch-action: none;
+}
+
+.wheel-bg {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 0.5;
+}
+
+.wheel-key {
+  fill: var(--surface-2);
+  stroke: var(--border);
+  stroke-width: 0.5;
+  transition: fill 0.12s ease;
+}
+
+.wheel-key-active {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+
+.wheel-letter {
+  fill: var(--text);
+  font-size: 9px;
+  font-weight: 700;
+  pointer-events: none;
+  user-select: none;
+}
+
+.wheel-trail {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.shuffle {
+  position: absolute;
+  right: 1rem;
+  bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  font-size: 1.4rem;
+}

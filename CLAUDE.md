@@ -10,7 +10,7 @@ Diese Punkte sind gesetzt. Wenn eine Aufgabe dagegen läuft, erst nachfragen.
 - **Handy zuerst.** Jede Oberfläche wird für Touch auf einem schmalen Display
   entworfen. Desktop darf funktionieren, ist aber nie der Maßstab.
 - **Keine Werbung, kein Tracking, keine Analytics.** Auch nicht "nur zum Testen".
-- **Kostenlos hostbar.** Alles muss im kostenlosen Tarif von Cloudflare Pages
+- **Kostenlos hostbar.** Alles muss im kostenlosen Tarif von Cloudflare Workers
   und D1 laufen. Keine Dienste, die eine Kreditkarte oder ein Abo verlangen.
 - **Wenige Abhängigkeiten.** Spiele werden selbst gebaut, nicht eingebunden.
   Eine neue Laufzeit-Abhängigkeit braucht einen Grund, der im Commit steht.
@@ -28,9 +28,9 @@ Diese Punkte sind gesetzt. Wenn eine Aufgabe dagegen läuft, erst nachfragen.
 | Datenbank | Cloudflare D1 (SQLite)                            |
 
 ```bash
-npm run dev        # Frontend; /api geht per Proxy an Wrangler auf Port 8788
+npm run dev        # Frontend; /api geht per Proxy an Wrangler auf Port 8787
 npm run preview    # Wrangler mit Worker und lokaler D1
-npm run typecheck  # prüft Frontend und Functions getrennt
+npm run typecheck  # prüft Frontend und Worker getrennt
 npm run build
 ```
 
@@ -103,8 +103,11 @@ veröffentlichte Seite gehören zu `wrangler secret put` – niemals unter
 
 ## Stand der Dinge
 
-- Fertig: Login, Profile, Launchpad, Spielstände, Wörtchen (deutsches Wordle).
+- Fertig: Login, Profile, Launchpad, Spielstände, Wörtchen (deutsches Wordle)
+  und Wortsalat (Buchstabenrad mit Kreuzworträtsel).
 - Es gibt noch **keine Tests** und kein Testframework. Wird eins gebraucht,
   vorher kurz abstimmen.
-- Die Wortlisten in `src/games/wordle/*.json` sind erzeugt, nicht handgepflegt.
-  Neu bauen mit `npm run words`, nicht direkt bearbeiten.
+- Die JSON-Dateien unter `src/games/*/` sind erzeugt, nicht handgepflegt:
+  `npm run words` für Wörtchen, `npm run words:puzzle` für die Level von
+  Wortsalat. Nie direkt bearbeiten – Änderungen gehören ins jeweilige Skript
+  unter `scripts/`.

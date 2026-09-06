@@ -11,6 +11,7 @@
     "db:local": "wrangler d1 execute bs-spieleparadies --local --file=./schema.sql",
     "db:remote": "wrangler d1 execute bs-spieleparadies --remote --file=./schema.sql",
     "words": "node scripts/build-words.mjs",
+    "words:puzzle": "node scripts/build-wordpuzzle.mjs",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {

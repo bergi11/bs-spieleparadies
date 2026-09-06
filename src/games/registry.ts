@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import type { User } from '../lib/api';
 import { Wordle } from './wordle/Wordle';
+import { WordPuzzle } from './wordpuzzle/WordPuzzle';
 
 export interface GameProps {
   user: User;
@@ -35,6 +36,20 @@ export const GAMES: GameDefinition[] = [
       if (!s?.stats?.played) return null;
       const { played = 0, streak = 0 } = s.stats;
       return `${played} gespielt · Serie ${streak}`;
+    },
+  },
+  {
+    id: 'wordpuzzle',
+    title: 'Wortsalat',
+    tagline: 'Buchstaben zu Wörtern verbinden',
+    icon: '🔡',
+    accent: '#ffb703',
+    component: WordPuzzle,
+    summary: (state) => {
+      const s = state as { level?: number; bonusTotal?: number } | null;
+      if (!s?.level) return null;
+      const bonus = s.bonusTotal ?? 0;
+      return bonus ? `Level ${s.level} · ✦ ${bonus}` : `Level ${s.level}`;
     },
   },
 ];
