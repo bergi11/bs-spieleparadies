@@ -1,0 +1,9 @@
+name = "bs-spieleparadies"
+compatibility_date = "2024-09-01"
+pages_build_output_dir = "dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "bs-spieleparadies"
+# Nach `wrangler d1 create bs-spieleparadies` die ausgegebene ID hier eintragen:
+database_id = "PLACEHOLDER_NACH_D1_CREATE_EINTRAGEN"

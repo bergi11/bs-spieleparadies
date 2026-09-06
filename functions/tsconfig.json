@@ -1,0 +1,19 @@
+{
+  // Eigene Konfiguration für das Backend: Workers und Browser bringen beide
+  // globale Typen für Request/Response mit. Getrennte Projekte verhindern,
+  // dass sich die DOM-Typen und die Worker-Typen gegenseitig überschreiben.
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "types": ["@cloudflare/workers-types"]
+  },
+  "include": ["."]
+}
