@@ -189,3 +189,45 @@ sowie die Oberfläche.
 Bei Pink Feld 1 widersprechen sich Textlayer (dort steht „+1") und Blattbild
 (dort ist ein weißer Würfel zu sehen). Übernommen ist das Bild. Falls beim
 Spielen etwas nicht passt, ist das die erste Stelle zum Nachsehen.
+
+## So geht es weiter
+
+Offen sind Schritt 3 und 4 des Plans:
+
+3. **Würfel- und Rundenablauf.** 6 Runden mit je zwei Phasen. Aktive Phase:
+   3 Würfe, nach jeder Wahl wandern alle niedrigeren Würfel aufs Tablett.
+   Passive Phase: alle 6 werfen, die 3 niedrigsten aufs Tablett, einen der
+   übrigen eintragen. Gehört als eigene Datei neben `logic.ts`, weiterhin ohne
+   React – dann lässt es sich mit `scripts/check-clever.ts` mitprüfen.
+4. **Oberfläche.** Ein Bereich pro Ansicht mit Farbleiste unten; nach dem Wurf
+   hervorheben, wo der Würfel verwendbar ist. Danach Boni und Aktionen.
+
+Der Spielstand gehört wie bei den anderen Spielen über
+`useGameSave(user.id, 'clever', …)` in die Datenbank, und das Spiel braucht
+einen Eintrag in `src/games/registry.ts`.
+
+## Wenn etwas nachgemessen werden muss
+
+Die Vorlagen liegen außerhalb des Repos:
+`C:\Users\lucas\OneDrive\Desktop\clever4_v2.pdf` (Blatt) und
+`CLEVER_4EVER_English_Rules.pdf` (Anleitung).
+
+Der Regeltext geht direkt mit dem `pdftotext`, das bei Git für Windows
+mitkommt:
+
+```bash
+pdftotext -layout CLEVER_4EVER_English_Rules.pdf regeln.txt
+```
+
+Für das Blatt gibt es hier weder `pdftoppm` noch einen PDF-Betrachter im
+Browser. Was funktioniert hat: die PDF nach `dist/` kopieren, eine kleine
+HTML-Seite danebenlegen, die sie mit pdf.js von cdnjs in ein Canvas rendert,
+und dann über `wrangler dev` aufrufen. Zwei Dinge waren dabei entscheidend:
+
+- **Auf das Ende des Renderns warten.** Screenshots davor zeigen halb
+  gezeichnete Bilder und führen völlig in die Irre – das hat mich mehrere
+  Fehlschlüsse gekostet. Die Seite setzt am Ende `document.title`.
+- **Nicht auf Bildschirmmaße verlassen.** Zuverlässig waren der Textlayer
+  (`page.getTextContent()` liefert jede Zahl mit Koordinaten) und
+  Farbmessungen im Canvas. Ein Blatt ist die linke Seitenhälfte:
+  `x 11–702, y 10–989` bei einer Seitengröße von 1414×1000.
