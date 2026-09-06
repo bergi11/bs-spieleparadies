@@ -142,14 +142,50 @@ Summe der fünf Bereiche, dazu Füchse × schwächster Bereich.
 | 180–209 | Die Würfel wollten wohl nicht. |
 | < 179 | Reden wir über etwas anderes… |
 
-## Noch offen
+## Bonusfelder
 
-Diese Angaben stehen noch nicht fest und müssen vor dem Bau des jeweiligen
-Bereichs aus dem Blatt nachgezogen werden:
+Alle Angaben sind in `src/games/clever/sheet.ts` hinterlegt.
 
-- Genaue Zuordnung der Bonusfelder in Gelb, Grau, Grün und Pink zu einzelnen
-  Feldern. Die Farben und ungefähren Positionen sind gemessen, die Zuordnung
-  Feld → Bonus fehlt.
-- Aufbau der Aktionsleiste: Anzahl der Felder je Aktion und die Boni am
-  Leistenende.
-- Welche Teilflächen im grauen Bereich einen Fuchs tragen.
+**Gelb** – obere Reihe: –, weißer Würfel, oranges ?, grünes ?, **Fuchs**.
+Mittlere Reihe: Neuwurf, lila ?, blaues ?, +1, gelbes ?. Untere Reihe: keine.
+
+**Grün** (unter den unteren Dreiecken, Feld 1–11): Neuwurf, blaues ?, weißer
+Würfel, gelbes ?, oranges ?, +1, lila ?, blaues ?, gelbes ?, **Fuchs**, +1.
+
+**Pink** (greift nur bei 5 oder 6, Feld 1–12): weißer Würfel, –, grünes ?, +1,
+Neuwurf, –, oranges ?, **Fuchs**, –, blaues ?, –, gelbes ?.
+
+**Grau** (Zeile,Spalte jeweils 0-basiert): 0,0 weißer Würfel · 0,5 grünes ? ·
+0,12 weißer Würfel · 1,7 Neuwurf · 1,15 grünes ? · 2,3 lila ? · 2,5 weißer
+Würfel · 2,9 weißer Würfel · 2,13 blaues ? · 3,0 Neuwurf · 3,7 +1 ·
+3,11 gelbes ? · 3,14 weißer Würfel.
+
+Orange steht dabei für den grauen Bereich, lila für den pinken – so sind die
+Bonussymbole auf dem Blatt eingefärbt.
+
+## Aktionsleisten
+
+Neuwurf 7 Felder mit einem lila ? am Ende, Extrawürfel 7 Felder, Silber
+polieren 9 Felder (als 3×3-Block gedruckt).
+
+## Teilflächen im grauen Bereich
+
+Aus dem Raster berechnet ergeben sich **15 Teilflächen** mit den Größen
+2, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7. Die beiden Startflächen sind die
+weiße oben links und die hellgraue darunter.
+
+## Stand der Umsetzung
+
+`src/games/clever/logic.ts` enthält den Regelkern: Zugprüfung je Bereich,
+Eintragen samt ausgelösten Boni, Teilflächenberechnung und die vollständige
+Endwertung. `npm run check:clever` prüft ihn gegen die Beispiele der
+Anleitung – Gelb 49, Blau 25, Grau 55, Grün 42, Pink 32 Punkte.
+
+Noch nicht gebaut: Würfel- und Rundenablauf, Einlösen der Boni und Aktionen,
+sowie die Oberfläche.
+
+## Unsicher
+
+Bei Pink Feld 1 widersprechen sich Textlayer (dort steht „+1") und Blattbild
+(dort ist ein weißer Würfel zu sehen). Übernommen ist das Bild. Falls beim
+Spielen etwas nicht passt, ist das die erste Stelle zum Nachsehen.
