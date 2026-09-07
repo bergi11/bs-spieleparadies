@@ -768,3 +768,359 @@ h3 {
   bottom: calc(0.75rem + env(safe-area-inset-bottom));
   font-size: 1.4rem;
 }
+
+/* ---------- Clever 4Ever ---------- */
+
+:root {
+  --c-gelb: #ffb703;
+  --c-blau: #4cc9f0;
+  /* Der graue Bereich ist auf dem Blatt orange gerahmt – daher orange. */
+  --c-grau: #ff8c42;
+  --c-gruen: #3ddc97;
+  --c-pink: #b06ad6;
+}
+
+.clever-blatt {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+.bereich {
+  width: 100%;
+  max-height: 100%;
+}
+
+/* Felder im Blatt */
+.feld {
+  fill: var(--surface-2);
+  stroke: var(--border);
+  stroke-width: 0.5;
+  transition: fill 0.15s ease;
+}
+
+.feld-belegt {
+  fill: var(--surface);
+  stroke: var(--muted);
+}
+
+.feld-offen {
+  fill: var(--accent);
+  stroke: var(--text);
+  stroke-width: 1;
+}
+
+.feld-klickbar {
+  cursor: pointer;
+}
+
+.feld-wert {
+  fill: var(--text);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.feld-wert.klein {
+  font-size: 8px;
+}
+
+.feld-bonus {
+  font-size: 7px;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.bonus-neutral {
+  fill: var(--muted);
+}
+.bonus-gelb {
+  fill: var(--c-gelb);
+}
+.bonus-blau {
+  fill: var(--c-blau);
+}
+.bonus-grau {
+  fill: var(--c-grau);
+}
+.bonus-gruen {
+  fill: var(--c-gruen);
+}
+.bonus-pink {
+  fill: var(--c-pink);
+}
+.bonus-schwarz {
+  fill: var(--text);
+}
+.bonus-fuchs {
+  font-size: 8px;
+}
+
+.spaltenwert {
+  fill: var(--muted);
+  font-size: 7px;
+  font-weight: 600;
+}
+
+.spaltenwert.klein {
+  font-size: 5.5px;
+}
+
+.spaltenwert-voll {
+  fill: var(--correct);
+}
+
+.reihen-marke {
+  fill: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.verdoppelt {
+  fill: var(--c-gruen);
+  font-size: 5px;
+  font-weight: 700;
+}
+
+/* Die drei Färbungen des grauen Bereichs. Sie müssen deutlich auseinander
+   liegen – an ihnen hängt, welche Felder eine Teilfläche bilden. */
+.grau-w {
+  fill: #7d7d99;
+}
+.grau-h {
+  fill: #4b4b64;
+}
+.grau-d {
+  fill: #2a2a3a;
+}
+
+/* Umriss einer Teilfläche */
+.grau-umriss {
+  fill: none;
+  stroke: var(--bg);
+  stroke-width: 1.4;
+  pointer-events: none;
+}
+
+.pink-kreis {
+  fill: none;
+  stroke: var(--c-pink);
+  stroke-width: 1.2;
+}
+
+/* Bereichsleiste unten */
+.bereichs-leiste {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.25rem;
+  padding: 0 0.5rem;
+}
+
+.bereichs-knopf {
+  min-height: 2.9rem;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom: 3px solid var(--rand, var(--border));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.05rem;
+}
+
+.bereich-gelb {
+  --rand: var(--c-gelb);
+}
+.bereich-blau {
+  --rand: var(--c-blau);
+}
+.bereich-grau {
+  --rand: var(--c-grau);
+}
+.bereich-gruen {
+  --rand: var(--c-gruen);
+}
+.bereich-pink {
+  --rand: var(--c-pink);
+}
+
+.bereichs-knopf-aktiv {
+  background: var(--surface-2);
+  border-color: var(--rand);
+}
+
+/* Hebt hervor, wo der gewählte Würfel hinpasst. */
+.bereichs-knopf-moeglich {
+  box-shadow: 0 0 0 2px var(--rand);
+}
+
+.bereichs-name {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.bereichs-punkte {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+/* Würfel und Zugleiste */
+.clever-zug {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem calc(0.5rem + env(safe-area-inset-bottom));
+}
+
+.wuerfel-reihe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+  align-items: center;
+  min-height: 3rem;
+}
+
+.wuerfel {
+  width: 2.9rem;
+  height: 2.9rem;
+  border-radius: 10px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #12121a;
+  display: grid;
+  place-items: center;
+  border: 2px solid transparent;
+}
+
+.wuerfel-gelb {
+  background: var(--c-gelb);
+}
+.wuerfel-blau {
+  background: var(--c-blau);
+}
+.wuerfel-grau {
+  background: var(--c-grau);
+}
+.wuerfel-gruen {
+  background: var(--c-gruen);
+}
+.wuerfel-pink {
+  background: var(--c-pink);
+}
+.wuerfel-weiss {
+  background: #f2f2f7;
+}
+.wuerfel-bonus {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.wuerfel-gewaehlt {
+  border-color: var(--text);
+  transform: translateY(-2px);
+}
+
+.wuerfel-blass {
+  opacity: 0.35;
+}
+
+.clever-knoepfe {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.clever-knoepfe .button {
+  flex: 1;
+  max-width: 12rem;
+}
+
+.aktions-leiste {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.aktion {
+  min-height: 2.2rem;
+  padding: 0 0.7rem;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.aktion-zahl {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.bonus-zug {
+  border-top: 2px solid var(--accent);
+  background: var(--surface);
+}
+
+.bonus-kopf {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* Würfelfelder und Tablett */
+.tisch {
+  display: flex;
+  gap: 1.25rem;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0.25rem 0.75rem 0.5rem;
+}
+
+.tisch-teil {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.tisch-name {
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.tisch-wuerfel {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.mini {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #12121a;
+}
+
+.mini-frei {
+  background: transparent;
+  border: 1px dashed var(--border);
+}
+
+.mini-leer {
+  background: var(--surface-2);
+  color: var(--muted);
+}

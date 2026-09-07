@@ -390,7 +390,8 @@ export function werten(blatt: Blatt): Wertung {
     pink,
     fuechse,
     gesamt,
-    titel: TITEL.find((t) => gesamt >= t.ab)!.text,
+    // Zur Sicherheit der letzte Eintrag, falls die Tabelle je eine Lücke bekommt.
+    titel: (TITEL.find((t) => gesamt >= t.ab) ?? TITEL[TITEL.length - 1]).text,
   };
 }
 

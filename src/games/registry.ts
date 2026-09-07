@@ -2,6 +2,7 @@ import type { ComponentType } from 'react';
 import type { User } from '../lib/api';
 import { Wordle } from './wordle/Wordle';
 import { WordPuzzle } from './wordpuzzle/WordPuzzle';
+import { Clever } from './clever/Clever';
 
 export interface GameProps {
   user: User;
@@ -50,6 +51,20 @@ export const GAMES: GameDefinition[] = [
       if (!s?.level) return null;
       const bonus = s.bonusTotal ?? 0;
       return bonus ? `Level ${s.level} · ✦ ${bonus}` : `Level ${s.level}`;
+    },
+  },
+  {
+    id: 'clever',
+    title: 'Clever 4Ever',
+    tagline: 'Würfelspiel, Solo',
+    icon: '🎲',
+    accent: '#ff8c42',
+    component: Clever,
+    summary: (state) => {
+      const s = state as { laufend?: unknown; beste?: number; partien?: number } | null;
+      if (s?.laufend) return 'Partie läuft';
+      if (!s?.partien) return null;
+      return `${s.partien} Partien · beste ${s.beste ?? 0}`;
     },
   },
 ];

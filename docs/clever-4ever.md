@@ -200,28 +200,45 @@ Noch nicht gebaut: Einlösen der Boni und Aktionen sowie die Oberfläche.
 
 ## Unsicher
 
-Bei Pink Feld 1 widersprechen sich Textlayer (dort steht „+1") und Blattbild
-(dort ist ein weißer Würfel zu sehen). Übernommen ist das Bild. Falls beim
-Spielen etwas nicht passt, ist das die erste Stelle zum Nachsehen.
+Diese Punkte sind aus dem Material nicht eindeutig hervorgegangen. Sie sind so
+umgesetzt, wie es am plausibelsten schien – wenn beim Spielen etwas schief
+wirkt, hier zuerst nachsehen:
+
+- **Pink Feld 1:** Textlayer sagt „+1", das Blattbild zeigt einen weißen
+  Würfel. Übernommen ist das Bild.
+- **Das „+1"-Symbol** füllt die Extrawürfel-Leiste. Die Anleitung beschreibt
+  „+1" nicht eigens, aber die zweite Aktionsleiste trägt genau dieses Symbol –
+  „+1" heißt hier also „ein Würfel mehr".
+- **Blaue Hauptdiagonale:** Die Anleitung sagt nur, dass zwei Kreuze auf der
+  Diagonale oben links → unten rechts „einen Bonus" geben, ohne ihn zu nennen.
+  Umgesetzt als Fuchs.
+- **Silber polieren** ist nicht umgesetzt. Auf dem Blatt gibt es kein Bonusfeld,
+  das diese Aktion freischaltet – ohne Quelle bliebe die Leiste ohnehin leer.
 
 ## So geht es weiter
 
-Schritt 3 ist erledigt. Offen ist Schritt 4:
+Alle vier Schritte sind umgesetzt; das Spiel ist durchspielbar.
 
-4. **Oberfläche.** Ein Bereich pro Ansicht mit Farbleiste unten; nach dem Wurf
-   über `moeglicheZiele` hervorheben, wo der Würfel verwendbar ist. Danach das
-   Einlösen der Boni und die Aktionsleisten.
+Die Oberfläche zeigt einen Bereich zur Zeit (`Clever.tsx`, Ansichten in
+`bereiche.tsx`). Ein Würfel wird angetippt, dann leuchten in der unteren Leiste
+die Bereiche auf, in denen er verwendbar ist; gibt es nur ein Ziel, wird sofort
+eingetragen. Weil immer nur ein Bereich sichtbar ist, springt die Ansicht
+automatisch dorthin, wo die Ziele liegen – sonst wären Bonusziele in einer
+anderen Farbe unerreichbar.
 
-Beim Bonussystem ist noch offen, wie ein ?-Bonus abgefragt wird: er wird sofort
-eingelöst, dabei wählt man eine Zahl von 1 bis 6 und trägt sie im Bereich der
-Bonusfarbe ein – beim schwarzen ? zusätzlich die Farbe. Das braucht einen
-eigenen Zwischenschritt in der Oberfläche, weil währenddessen kein Würfel
-gewählt wird.
+Boni laufen über eine Warteschlange, weil ein Bonus den nächsten auslösen kann.
+Beim Einlesen wird sie aufgeräumt: Aktionsboni gehören auf ihre Leiste, nicht
+in die Abfrage, sonst stünde dort eine Auswahl ohne wählbare Zahl.
 
-Ebenfalls offen sind die drei Aktionen. „Umdrehen" ist im Solospiel gesperrt,
-die anderen greifen in den Würfelablauf ein: Neuwurf wirft die eben geworfenen
-Würfel neu, Extrawürfel hängt am Zugende einen beliebigen Würfel an, Silber
-polieren verändert einen Tablettwürfel um ±1 (nie von 1 auf 6 oder umgekehrt).
+Zurücknehmen geht einen Schritt weit. Der Wurf danach wird mitgespeichert –
+wählt man denselben Würfel erneut, kommen dieselben Würfel wieder, sonst ließe
+sich durch Zurücknehmen ein besserer Wurf erschleichen.
+
+### Was noch fehlen könnte
+
+- Die Aktionsleisten haben feste Längen (7/7/9), aber es gibt noch keine
+  Anzeige des Fortschritts – nur die einsetzbaren Aktionen werden gezeigt.
+- Der Bonus am Ende der Neuwurf-Leiste (lila ?) wird nicht vergeben.
 
 Der Spielstand gehört wie bei den anderen Spielen über
 `useGameSave(user.id, 'clever', …)` in die Datenbank, und das Spiel braucht

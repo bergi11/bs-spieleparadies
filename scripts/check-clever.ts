@@ -190,6 +190,14 @@ function pruefe(name: string, ist: unknown, soll: unknown) {
   pruefe('Füchse zählen wie der schwächste Bereich', w.fuechse, 0);
   pruefe('Gesamtpunkte', w.gesamt, 30);
   pruefe('Titel bei wenig Punkten', w.titel, 'Reden wir über etwas anderes…');
+
+  // Die mittlere gelbe Reihe zählt negativ – ein Zwischenstand unter null darf
+  // die Wertung nicht zum Absturz bringen.
+  const minus = leeresBlatt();
+  minus.gelb[1] = [6, 6, 6, null, null];
+  const mw = werten(minus);
+  pruefe('Negative Summe ist erlaubt', mw.gesamt, -18);
+  pruefe('Negative Summe bekommt einen Titel', typeof mw.titel, 'string');
 }
 
 // -------------------------------------------------- Würfel und Rundenablauf

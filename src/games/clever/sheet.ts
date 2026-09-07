@@ -196,5 +196,7 @@ export const TITEL: { ab: number; text: string }[] = [
   { ab: 240, text: 'Mann, keine Sorge!' },
   { ab: 210, text: 'Da ist noch Luft nach oben.' },
   { ab: 180, text: 'Die Würfel wollten wohl nicht.' },
-  { ab: 0, text: 'Reden wir über etwas anderes…' },
+  // Fängt auch negative Zwischenstände ab: die mittlere gelbe Reihe zählt
+  // negativ, damit kann die Summe zeitweise unter null liegen.
+  { ab: Number.NEGATIVE_INFINITY, text: 'Reden wir über etwas anderes…' },
 ];
