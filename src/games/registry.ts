@@ -6,6 +6,7 @@ import { Clever } from './clever/Clever';
 import { Hangman } from './hangman/Hangman';
 import { Intersections } from './intersections/Intersections';
 import { Skyscrapers } from './skyscrapers/Skyscrapers';
+import { Nonogram } from './nonogram/Nonogram';
 
 export interface GameProps {
   user: User;
@@ -143,6 +144,26 @@ export const GAMES: GameDefinition[] = [
       if (!s?.raetsel) return null;
       const geloest = s.stats?.geloest ?? 0;
       return geloest ? `Rätsel ${s.raetsel} · ${geloest} gelöst` : `Rätsel ${s.raetsel}`;
+    },
+    bestwert: (state) => {
+      const s = state as { stats?: { geloest?: number; makellos?: number } } | null;
+      if (!s?.stats?.geloest) return null;
+      const { geloest = 0, makellos = 0 } = s.stats;
+      return { wert: geloest, text: `${geloest} gelöst · ${makellos} ohne Tipp` };
+    },
+  },
+  {
+    id: 'nonogram',
+    title: 'Bildgitter',
+    tagline: 'Zahlen am Rand, Bild im Gitter',
+    icon: '🖼️',
+    accent: '#f4a261',
+    component: Nonogram,
+    summary: (state) => {
+      const s = state as { bild?: number; stats?: { geloest?: number } } | null;
+      if (!s?.bild) return null;
+      const geloest = s.stats?.geloest ?? 0;
+      return geloest ? `Bild ${s.bild} · ${geloest} gelöst` : `Bild ${s.bild}`;
     },
     bestwert: (state) => {
       const s = state as { stats?: { geloest?: number; makellos?: number } } | null;

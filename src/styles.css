@@ -2222,3 +2222,133 @@ h3 {
     font-size: 1rem;
   }
 }
+
+/* ---------- Bildgitter ---------- */
+
+.bild-brett {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem;
+  overflow: auto;
+}
+
+/* Die Zahlenspur ist links und oben gleich breit. Ist das ganze Gitter
+   quadratisch, sind es die Felder damit auch.
+   `touch-action: none`, weil das Ziehen über die Felder sonst die Seite
+   scrollt statt zu malen. */
+.bild-gitter {
+  display: grid;
+  grid-template-columns: calc(var(--spur) * 0.8rem) repeat(var(--felder), minmax(0, 1fr));
+  grid-template-rows: calc(var(--spur) * 0.8rem) repeat(var(--felder), minmax(0, 1fr));
+  gap: 2px;
+  width: min(100%, 26rem);
+  aspect-ratio: 1;
+  max-height: 100%;
+  touch-action: none;
+}
+
+.bild-hinweis {
+  display: flex;
+  gap: 0.22rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.bild-hinweis-zeile {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 0.3rem;
+}
+
+.bild-hinweis-spalte {
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 0.3rem;
+}
+
+/* Stimmt eine Reihe mit ihren Zahlen überein, tritt sie zurück. Das verrät
+   nichts – man sieht es an den eigenen Feldern ohnehin, nur eben mühsam. */
+.bild-hinweis-erledigt {
+  color: var(--absent);
+}
+
+.bild-feld {
+  background: var(--surface-2);
+  border-radius: 3px;
+  font-size: 0.7rem;
+  line-height: 1;
+  color: var(--muted);
+  padding: 0;
+}
+
+.bild-feld:disabled {
+  cursor: default;
+}
+
+.bild-feld-voll {
+  background: var(--text);
+}
+
+.bild-feld-strich {
+  background: var(--surface);
+}
+
+/* Startfelder und Tipps stehen fest – der Ring sagt, dass sie nicht von einem
+   selbst kommen. */
+.bild-feld-gegeben {
+  box-shadow: inset 0 0 0 2px var(--present);
+}
+
+/* Alle fünf Felder eine Trennlinie: ohne sie zählt man auf zehn Feldern
+   ständig neu. */
+.bild-feld-kante-rechts {
+  border-right: 3px solid var(--bg);
+}
+
+.bild-feld-kante-unten {
+  border-bottom: 3px solid var(--bg);
+}
+
+.bild-fuss {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem calc(0.6rem + env(safe-area-inset-bottom));
+}
+
+.bild-modus {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.bild-modus .button {
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  font-size: 0.9rem;
+}
+
+.bild-fuss .hint {
+  margin: 0;
+  max-width: 26rem;
+}
+
+@media (max-width: 380px) {
+  .bild-gitter {
+    gap: 1px;
+  }
+
+  .bild-modus .button {
+    padding: 0 0.55rem;
+    font-size: 0.85rem;
+  }
+}

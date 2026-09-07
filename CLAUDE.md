@@ -109,16 +109,20 @@ veröffentlichte Seite gehören zu `wrangler secret put` – niemals unter
   Regeln, Blattdaten und die getroffenen Annahmen: `docs/clever-4ever.md`.
   Dazu Galgenmännchen (klassisches Hangman, elf Fehlversuche).
 - Neu und noch ungespielt: Schnittpunkte (4x4-Gitter aus Kategorien und
-  Schreibweise-Eigenschaften, Lösungen tippt man selbst ein) und Wolkenkratzer
-  (Logikrätsel mit Höhen 1..n, Sichthinweise am Rand, 4x4 bis 6x6).
+  Schreibweise-Eigenschaften, Lösungen tippt man selbst ein), Wolkenkratzer
+  (Logikrätsel mit Höhen 1..n, Sichthinweise am Rand, 4x4 bis 6x6) und
+  Bildgitter (Nonogramm, Bilder von Hand gezeichnet, 5x5 bis 10x10).
 - Es gibt **kein Testframework**. Wird eins gebraucht, vorher kurz abstimmen.
   Einzelne Regelkerne werden stattdessen mit einem einfachen Prüfskript
   abgesichert, das Node direkt ausführt – siehe `npm run check:clever`,
-  `npm run check:intersections` und `npm run check:skyscrapers`.
+  `npm run check:intersections`, `npm run check:skyscrapers` und
+  `npm run check:nonograms`.
 - Die JSON-Dateien unter `src/games/*/` sind erzeugt, nicht handgepflegt:
   `npm run words` für Wörtchen, `npm run words:puzzle` für die Level von
   Wortsalat, `npm run words:hangman` für die Rätselwörter des Galgenmännchens,
   `npm run words:intersections` für Wortlisten, Regeln und Rätsel der
-  Schnittpunkte, `npm run puzzles:skyscrapers` für die Rätsel der Wolkenkratzer.
+  Schnittpunkte, `npm run puzzles:skyscrapers` für die Rätsel der Wolkenkratzer,
+  `npm run puzzles:nonograms` für die Bilder des Bildgitters – die Zeichnungen
+  selbst stehen im Skript.
   Nie direkt bearbeiten – Änderungen gehören ins jeweilige Skript unter
   `scripts/`.
