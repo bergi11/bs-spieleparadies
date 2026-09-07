@@ -260,24 +260,27 @@ export function BlauAnsicht({ blatt, ziele, onZiel }: Props) {
         </text>
       ))}
 
-      {/* Was die Diagonalen bringen – ab zwei Kreuzen. */}
+      {/* Was die Diagonalen bringen – ab zwei Kreuzen. Jeder Hinweis steht
+          unter dem unteren Ende seiner Diagonale: die von oben links kommende
+          endet rechts, die von oben rechts kommende links. Mittig nebeneinander
+          gesetzt las man sie sonst der falschen Diagonale zu. */}
       <text
-        x={links + 1.5 * Z}
-        y={oben + 6 * Z + 19}
-        className={`diagonal-hinweis${haupt >= 2 ? ' spaltenwert-voll' : ''}`}
-        textAnchor="middle"
-        dominantBaseline="central"
-      >
-        ↘ ↻ {haupt}/2
-      </text>
-      <text
-        x={links + 4.5 * Z}
+        x={links + 0.5 * Z}
         y={oben + 6 * Z + 19}
         className={`diagonal-hinweis${neben >= 2 ? ' spaltenwert-voll' : ''}`}
         textAnchor="middle"
         dominantBaseline="central"
       >
         ↙ 6 P. {neben}/2
+      </text>
+      <text
+        x={links + 5.5 * Z}
+        y={oben + 6 * Z + 19}
+        className={`diagonal-hinweis${haupt >= 2 ? ' spaltenwert-voll' : ''}`}
+        textAnchor="middle"
+        dominantBaseline="central"
+      >
+        ↘ ↻ {haupt}/2
       </text>
     </svg>
   );

@@ -493,6 +493,10 @@ export function Clever({ user, onExit }: GameProps) {
           wert={bonusWert}
           farbe={bonusFarbe}
           onFarbe={setBonusFarbe}
+          onFarbeLoesen={() => {
+            setBonusFarbe(null);
+            setBonusWert(null);
+          }}
           onWert={setBonusWert}
           onVerfallen={() => {
             persist((v) => ({ ...v, laufend: { ...laufend, boni: boni.slice(1) } }));
@@ -981,6 +985,7 @@ function BonusWahl({
   farbe,
   onWert,
   onFarbe,
+  onFarbeLoesen,
   onVerfallen,
 }: {
   bonus: Bonus;
@@ -990,6 +995,7 @@ function BonusWahl({
   farbe: Bereich | null;
   onWert: (w: number | null) => void;
   onFarbe: (f: Bereich) => void;
+  onFarbeLoesen: () => void;
   onVerfallen: () => void;
 }) {
   const schwarz = bonus.art === 'frage' && bonus.farbe === 'schwarz';
@@ -1002,29 +1008,41 @@ function BonusWahl({
           : bonus.farbe
         : null;
 
-  const zahlGeht = (zahl: number) => {
-    if (zielFarbe === null) return false;
-    if (zielFarbe === 'weiss') return moeglicheZiele(blatt, { farbe: 'weiss', wert: zahl }, weiss).length > 0;
-    if (zielFarbe === 'blau') return blatt.blau.some((z) => z.some((f) => !f));
-    return moeglicheZiele(blatt, { farbe: zielFarbe, wert: zahl }, weiss).length > 0;
+  const zahlGehtIn = (b: Bereich | 'weiss', zahl: number) => {
+    // Das blaue ? darf jedes freie Feld ankreuzen, die Zahl ist dort egal.
+    if (b === 'blau') return blatt.blau.some((z) => z.some((f) => !f));
+    return moeglicheZiele(blatt, { farbe: b, wert: zahl }, weiss).length > 0;
   };
 
   const zahlen = [1, 2, 3, 4, 5, 6];
-  const nichtsMoeglich = zielFarbe !== null && zahlen.every((z) => !zahlGeht(z));
+  const zahlGeht = (zahl: number) => zielFarbe !== null && zahlGehtIn(zielFarbe, zahl);
+  // Beim schwarzen Bonus ist die Farbe frei – dann dürfen nur Farben angeboten
+  // werden, in denen überhaupt etwas geht. Sonst führt ein Fehlgriff in eine
+  // Sackgasse und der ganze Bonus verfällt.
+  const farbeGeht = (b: Bereich) => zahlen.some((z) => zahlGehtIn(b, z));
+  const nichtsMoeglich = schwarz && !farbe
+    ? BEREICHE.every((b) => !farbeGeht(b))
+    : zielFarbe !== null && zahlen.every((z) => !zahlGeht(z));
 
   return (
     <div className="clever-zug bonus-zug">
       <div className="bonus-kopf">
         {schwarz && !farbe
-          ? 'Schwarzer Bonus: Farbe wählen'
+          ? 'Schwarzer Bonus: Farbe frei wählen'
           : `Bonus ${zielFarbe && zielFarbe !== 'weiss' ? BEREICH_NAME[zielFarbe] : ''}: Zahl wählen`}
       </div>
 
-      {schwarz && !farbe ? (
+      {schwarz && !farbe && !nichtsMoeglich ? (
         <div className="wuerfel-reihe">
           {BEREICHE.map((b) => (
-            <button key={b} className={`wuerfel wuerfel-${b}`} onClick={() => onFarbe(b)}>
-              {BEREICH_NAME[b][0]}
+            <button
+              key={b}
+              // Der erste Buchstabe reicht nicht: Gelb, Grau und Grün fangen
+              // alle drei mit G an.
+              className={`wuerfel farb-wahl wuerfel-${b}${farbeGeht(b) ? '' : ' wuerfel-blass'}`}
+              onClick={() => farbeGeht(b) && onFarbe(b)}
+            >
+              {BEREICH_NAME[b]}
             </button>
           ))}
         </div>
@@ -1046,6 +1064,14 @@ function BonusWahl({
             </button>
           ))}
         </div>
+      )}
+
+      {/* Beim schwarzen Bonus ist die Farbe frei – wer sich vertippt, soll
+          nicht mit der falschen Farbe festsitzen. */}
+      {schwarz && farbe && !nichtsMoeglich && (
+        <button className="linkknopf" onClick={onFarbeLoesen}>
+          ← andere Farbe
+        </button>
       )}
     </div>
   );

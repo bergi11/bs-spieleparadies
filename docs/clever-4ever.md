@@ -249,6 +249,12 @@ offene als Umriss. Grau hat drei davon, je einen pro Färbung – ihre Ringe
 nehmen die Färbung vom Blatt auf, sonst wären die drei nicht auseinander-
 zuhalten.
 
+Das schwarze ? vor Runde 4 fragt in zwei Schritten: erst die Farbe, dann die
+Zahl. Farben, in denen gerade nichts unterzubringen ist, sind blass und nicht
+antippbar, und ein „← andere Farbe" führt zurück – sonst kostet ein Fehlgriff
+den ganzen Bonus, obwohl er laut Regel frei ist. Die Knöpfe tragen den vollen
+Namen: Gelb, Grau und Grün fangen alle drei mit G an.
+
 In der passiven Phase liegen alle sechs Würfel offen, getrennt nach
 Silbertablett und aktivem Spieler. Die Würfel des aktiven Spielers sind blass,
 solange das Tablett etwas hergibt – sie zu verstecken hätte den Eindruck

@@ -24,6 +24,7 @@ import {
   type Blatt,
 } from '../src/games/clever/logic.ts';
 import {
+  BEREICHE,
   BLAU_BONI,
   GELB_BONI,
   GRAU_BONI,
@@ -482,6 +483,37 @@ const farben = (w: { farbe: string }[]) => w.map((x) => x.farbe);
     'Polierboni vorhanden',
     alleBoni.filter((b) => b!.art === 'polieren').length,
     9,
+  );
+}
+
+{
+  // Vor Runde 4 kommt der schwarze Bonus: Farbe und Zahl sind beide frei.
+  const vierte = RUNDEN_BONI[3];
+  pruefe(
+    'Runde 4: schwarzer Bonus',
+    vierte?.art === 'frage' && vierte.farbe === 'schwarz',
+    true,
+  );
+
+  // Damit die Farbwahl wirklich offen ist, muss auf einem leeren Blatt in
+  // jeder der fünf Farben mindestens eine Zahl unterzubringen sein.
+  const leer = leeresBlatt();
+  const zahlen = [1, 2, 3, 4, 5, 6];
+  for (const farbe of BEREICHE) {
+    const geht =
+      farbe === 'blau'
+        ? leer.blau.some((z) => z.some((f) => !f))
+        : zahlen.some((wert) => moeglicheZiele(leer, { farbe, wert }, null).length > 0);
+    pruefe(`Schwarzer Bonus: ${farbe} waehlbar`, geht, true);
+  }
+
+  // Und andersherum: eine volle Farbe darf nicht mehr angeboten werden,
+  // sonst landet der Bonus in einer Sackgasse.
+  const vollesBlau: Blatt = { ...leer, blau: leer.blau.map((z) => z.map(() => true)) };
+  pruefe(
+    'Schwarzer Bonus: volles Blau faellt weg',
+    vollesBlau.blau.some((z) => z.some((f) => !f)),
+    false,
   );
 }
 
