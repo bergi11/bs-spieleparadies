@@ -113,6 +113,29 @@ Create → Workers → Import a repository**. Build-Befehl `npm run build`,
 Deploy-Befehl `npx wrangler deploy`. Dann veröffentlicht jeder Push auf `main`
 automatisch.
 
+### 5. Aufs Handy legen
+
+Die Seite ist eine installierbare Web-App: Manifest, Icons und die passenden
+Meta-Tags stecken in `index.html` und `public/`. Einmal auf den
+Homebildschirm gelegt, startet sie ohne Adressleiste und mit eigenem Icon.
+
+**iPhone (Safari):** Seite öffnen → Teilen-Symbol unten → *Zum
+Home-Bildschirm*. In **Chrome auf dem iPhone** liegt derselbe Punkt unter dem
+Teilen-Symbol oben rechts; ein eigenes „Installieren“ wie auf dem Desktop
+gibt es unter iOS nicht, weil Apple dafür nur diesen Weg vorsieht.
+
+**Android (Chrome):** Menü → *App installieren*.
+
+Die so installierte App hat unter iOS **einen eigenen Cookie-Speicher**. Das
+Passwort und das Profil müssen dort also einmal neu eingegeben werden, auch
+wenn man im Browser schon angemeldet war.
+
+Die Icons unter `public/*.png` sind erzeugt, nicht gemalt. Wer die Farben oder
+die Form ändern will, passt `scripts/build-icons.mjs` an und lässt
+`npm run icons` laufen. iOS behält ein einmal gewähltes Icon allerdings häufig
+im Cache – nach einer Änderung die App vom Homebildschirm löschen und neu
+ablegen.
+
 ## Ein Spiel hinzufügen
 
 1. Ordner unter `src/games/<name>/` anlegen mit einer Komponente, die

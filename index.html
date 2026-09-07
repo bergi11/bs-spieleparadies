@@ -8,10 +8,19 @@
     />
     <meta name="theme-color" content="#12121a" />
     <meta name="description" content="Werbefreies Spieleparadies" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <!-- Das apple-Pendant ist offiziell veraltet, aber aeltere iOS-Versionen
+         starten nur damit ohne Adressleiste. -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <!-- Name unter dem Icon auf dem Homebildschirm. -->
+    <meta name="apple-mobile-web-app-title" content="Spieleparadies" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- iOS liest fuer den Homebildschirm nur dieses Icon; Manifest-Icons und
+         SVG ignoriert es und legt sonst einen Screenshot der Seite ab. -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
     <title>BS Spieleparadies</title>
   </head>
   <body>
