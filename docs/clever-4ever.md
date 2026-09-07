@@ -178,11 +178,25 @@ weiße oben links und die hellgraue darunter.
 
 `src/games/clever/logic.ts` enthält den Regelkern: Zugprüfung je Bereich,
 Eintragen samt ausgelösten Boni, Teilflächenberechnung und die vollständige
-Endwertung. `npm run check:clever` prüft ihn gegen die Beispiele der
-Anleitung – Gelb 49, Blau 25, Grau 55, Grün 42, Pink 32 Punkte.
+Endwertung.
 
-Noch nicht gebaut: Würfel- und Rundenablauf, Einlösen der Boni und Aktionen,
-sowie die Oberfläche.
+`src/games/clever/wuerfel.ts` enthält Würfel und Rundenablauf. Der Zufall
+kommt als `Rng` von außen herein, damit sich Runden mit festen Würfelfolgen
+durchspielen lassen. Wichtigste Funktion für die Oberfläche ist
+`moeglicheZiele(blatt, wuerfel, weiss)`: sie liefert alle erlaubten Einträge
+für einen Würfel – damit lässt sich hervorheben, wo er verwendbar ist, und es
+können nur erlaubte Züge angeboten werden.
+
+Der weiße Würfel wird dort gesondert behandelt: Joker für Gelb, Grau, Grün und
+Pink, aber nie für Blau – dort gibt sein Wert die Spalte vor, unabhängig davon,
+wo er gerade liegt. `weisserWert(stand)` sucht ihn deshalb über alle Ablagen.
+
+`npm run check:clever` prüft beides: die Punktbeispiele der Anleitung
+(Gelb 49, Blau 25, Grau 55, Grün 42, Pink 32), die Zugregeln, den
+Würfelablauf mit festen Würfelfolgen und einen vollständigen Sechs-Runden-
+Durchlauf.
+
+Noch nicht gebaut: Einlösen der Boni und Aktionen sowie die Oberfläche.
 
 ## Unsicher
 
@@ -192,15 +206,22 @@ Spielen etwas nicht passt, ist das die erste Stelle zum Nachsehen.
 
 ## So geht es weiter
 
-Offen sind Schritt 3 und 4 des Plans:
+Schritt 3 ist erledigt. Offen ist Schritt 4:
 
-3. **Würfel- und Rundenablauf.** 6 Runden mit je zwei Phasen. Aktive Phase:
-   3 Würfe, nach jeder Wahl wandern alle niedrigeren Würfel aufs Tablett.
-   Passive Phase: alle 6 werfen, die 3 niedrigsten aufs Tablett, einen der
-   übrigen eintragen. Gehört als eigene Datei neben `logic.ts`, weiterhin ohne
-   React – dann lässt es sich mit `scripts/check-clever.ts` mitprüfen.
 4. **Oberfläche.** Ein Bereich pro Ansicht mit Farbleiste unten; nach dem Wurf
-   hervorheben, wo der Würfel verwendbar ist. Danach Boni und Aktionen.
+   über `moeglicheZiele` hervorheben, wo der Würfel verwendbar ist. Danach das
+   Einlösen der Boni und die Aktionsleisten.
+
+Beim Bonussystem ist noch offen, wie ein ?-Bonus abgefragt wird: er wird sofort
+eingelöst, dabei wählt man eine Zahl von 1 bis 6 und trägt sie im Bereich der
+Bonusfarbe ein – beim schwarzen ? zusätzlich die Farbe. Das braucht einen
+eigenen Zwischenschritt in der Oberfläche, weil währenddessen kein Würfel
+gewählt wird.
+
+Ebenfalls offen sind die drei Aktionen. „Umdrehen" ist im Solospiel gesperrt,
+die anderen greifen in den Würfelablauf ein: Neuwurf wirft die eben geworfenen
+Würfel neu, Extrawürfel hängt am Zugende einen beliebigen Würfel an, Silber
+polieren verändert einen Tablettwürfel um ±1 (nie von 1 auf 6 oder umgekehrt).
 
 Der Spielstand gehört wie bei den anderen Spielen über
 `useGameSave(user.id, 'clever', …)` in die Datenbank, und das Spiel braucht

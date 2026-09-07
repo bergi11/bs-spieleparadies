@@ -21,7 +21,19 @@ import {
   werten,
   type Blatt,
 } from '../src/games/clever/logic.ts';
-import { GRAU_RASTER } from '../src/games/clever/sheet.ts';
+import { GRAU_RASTER, RUNDEN } from '../src/games/clever/sheet.ts';
+import {
+  WUERFEL_FARBEN,
+  moeglicheZiele,
+  nachWahl,
+  naechsteRunde,
+  neueRunde,
+  passivWaehlbar,
+  startePassiv,
+  verzichten,
+  weisserWert,
+  type Rng,
+} from '../src/games/clever/wuerfel.ts';
 
 let fehler = 0;
 
@@ -178,6 +190,214 @@ function pruefe(name: string, ist: unknown, soll: unknown) {
   pruefe('Füchse zählen wie der schwächste Bereich', w.fuechse, 0);
   pruefe('Gesamtpunkte', w.gesamt, 30);
   pruefe('Titel bei wenig Punkten', w.titel, 'Reden wir über etwas anderes…');
+}
+
+// -------------------------------------------------- Würfel und Rundenablauf
+
+/** Liefert genau die angegebenen Würfelwerte, der Reihe nach. */
+function festeWuerfel(werte: number[]): Rng {
+  let i = 0;
+  return () => (werte[i++ % werte.length] - 1 + 0.5) / 6;
+}
+
+const werte = (w: { wert: number }[]) => w.map((x) => x.wert);
+const farben = (w: { farbe: string }[]) => w.map((x) => x.farbe);
+
+{
+  // Reihenfolge der Farben ist gelb, blau, grau, grün, pink, weiß.
+  const stand = neueRunde(1, festeWuerfel([3, 5, 2, 5, 1, 6]));
+  pruefe('Wurf: sechs Würfel', stand.offen.length, 6);
+  pruefe('Wurf: feste Werte', werte(stand.offen), [3, 5, 2, 5, 1, 6]);
+  pruefe('Wurf: Farbreihenfolge', farben(stand.offen), WUERFEL_FARBEN);
+  pruefe('Runde beginnt aktiv', stand.phase, 'aktiv');
+}
+
+{
+  // Blau (5) nehmen: alles unter 5 kommt aufs Tablett, 5 und 6 bleiben.
+  const stand = neueRunde(1, festeWuerfel([3, 5, 2, 5, 1, 6]));
+  const nach = nachWahl(stand, 1, festeWuerfel([4, 4]));
+  pruefe('Wahl: Würfel liegt auf dem Feld', werte(nach.felder as { wert: number }[]), [5]);
+  pruefe('Wahl: Niedrigere aufs Tablett', werte(nach.tablett).sort(), [1, 2, 3]);
+  pruefe('Wahl: Gleiche bleiben in der Hand', nach.offen.length, 2);
+  pruefe('Wahl: weitergewürfelt wird mit denselben Farben', farben(nach.offen), ['gruen', 'weiss']);
+  pruefe('Wahl: zweiter Wurf', nach.wurf, 2);
+}
+
+{
+  // Gleiche Werte sind nicht niedriger und bleiben liegen.
+  const stand = neueRunde(1, festeWuerfel([4, 4, 4, 4, 4, 4]));
+  const nach = nachWahl(stand, 0, festeWuerfel([2]));
+  pruefe('Wahl: gleicher Wert wandert nicht aufs Tablett', nach.tablett.length, 0);
+  pruefe('Wahl: fünf Würfel bleiben', nach.offen.length, 5);
+}
+
+{
+  // Nach drei genommenen Würfeln ist die aktive Phase vorbei.
+  let stand = neueRunde(1, festeWuerfel([6, 6, 6, 6, 6, 6]));
+  stand = nachWahl(stand, 0, festeWuerfel([6]));
+  stand = nachWahl(stand, 0, festeWuerfel([6]));
+  stand = nachWahl(stand, 0, festeWuerfel([6]));
+  pruefe('Aktiv: drei Würfelfelder belegt', stand.felder.length, 3);
+  pruefe('Aktiv: keine offenen Würfel mehr', stand.offen.length, 0);
+  pruefe('Aktiv: der Rest liegt auf dem Tablett', stand.tablett.length, 3);
+}
+
+{
+  // Wer den höchsten Würfel zuerst nimmt, hat nichts mehr zum Weiterwürfeln.
+  const stand = neueRunde(1, festeWuerfel([1, 1, 1, 1, 1, 6]));
+  const nach = nachWahl(stand, 5, festeWuerfel([1]));
+  pruefe('Aktiv: zu früh hoch gewählt beendet den Zug', nach.offen.length, 0);
+  pruefe('Aktiv: nur ein Würfelfeld belegt', nach.felder.length, 1);
+}
+
+{
+  // Verzichten verbraucht ein Würfelfeld, ohne etwas einzutragen.
+  const stand = neueRunde(1, festeWuerfel([2, 2, 2, 2, 2, 2]));
+  const nach = verzichten(stand, festeWuerfel([3]));
+  pruefe('Verzicht: Feld bleibt leer, ist aber verbraucht', nach.felder, [null]);
+  pruefe('Verzicht: es wird neu gewürfelt', nach.offen.length, 6);
+  pruefe('Verzicht: nächster Wurf', nach.wurf, 2);
+}
+
+{
+  // Der weiße Würfel bleibt auffindbar, auch wenn er auf dem Tablett landet.
+  const stand = neueRunde(1, festeWuerfel([6, 1, 1, 1, 1, 2]));
+  pruefe('Weiß: Wert im Wurf', weisserWert(stand), 2);
+  const nach = nachWahl(stand, 0, festeWuerfel([1]));
+  pruefe('Weiß: liegt jetzt auf dem Tablett', farben(nach.tablett).includes('weiss'), true);
+  pruefe('Weiß: Wert weiterhin bekannt', weisserWert(nach), 2);
+}
+
+{
+  // Passive Phase: die drei niedrigsten aufs Tablett, die drei hohen daneben.
+  const stand = startePassiv(neueRunde(1, festeWuerfel([1, 1, 1, 1, 1, 1])), festeWuerfel([4, 2, 6, 1, 5, 3]));
+  pruefe('Passiv: Phase gewechselt', stand.phase, 'passiv');
+  pruefe('Passiv: drei niedrige aufs Tablett', werte(stand.tablett), [1, 2, 3]);
+  pruefe('Passiv: drei hohe auf den Feldern', werte(stand.passivFelder), [4, 5, 6]);
+}
+
+{
+  // Vom Tablett wird gewählt; nur wenn dort nichts geht, die hohen Würfel.
+  const blatt = leeresBlatt();
+  const stand = startePassiv(neueRunde(1, festeWuerfel([1, 1, 1, 1, 1, 1])), festeWuerfel([4, 2, 6, 1, 5, 3]));
+  const waehlbar = passivWaehlbar(stand, blatt);
+  pruefe('Passiv: Auswahl kommt vom Tablett', waehlbar.length > 0, true);
+  pruefe(
+    'Passiv: nur Tablettwürfel',
+    waehlbar.every((w) => stand.tablett.includes(w)),
+    true,
+  );
+}
+
+{
+  // Rundenwechsel und Spielende.
+  const stand = neueRunde(1, festeWuerfel([1]));
+  pruefe('Rundenwechsel: weiter zu Runde 2', naechsteRunde(stand, festeWuerfel([1])).runde, 2);
+  const letzte = neueRunde(RUNDEN, festeWuerfel([1]));
+  pruefe('Rundenwechsel: nach der letzten ist Schluss', naechsteRunde(letzte, festeWuerfel([1])).phase, 'spielende');
+}
+
+// ----------------------------------------------------------- Mögliche Ziele
+
+{
+  const blatt = leeresBlatt();
+
+  // Der weiße Würfel ist Joker für vier Bereiche – für Blau nie, dort gibt er
+  // die Spalte vor.
+  const weissZiele = moeglicheZiele(blatt, { farbe: 'weiss', wert: 4 }, 4);
+  pruefe('Weiß: nie für Blau', weissZiele.some((z) => z.bereich === 'blau'), false);
+  pruefe(
+    'Weiß: Joker für die übrigen vier',
+    [...new Set(weissZiele.map((z) => z.bereich))].sort(),
+    ['gelb', 'grau', 'gruen', 'pink'],
+  );
+
+  // Die kleinere Startfläche hat 4 Felder – mit einer 3 ist Grau noch zu.
+  const weissDrei = moeglicheZiele(blatt, { farbe: 'weiss', wert: 3 }, 3);
+  pruefe('Weiß: mit 3 ist Grau noch verschlossen', weissDrei.some((z) => z.bereich === 'grau'), false);
+
+  // Blau: Zeile aus dem blauen, Spalte aus dem weißen Würfel.
+  const blauZiele = moeglicheZiele(blatt, { farbe: 'blau', wert: 3 }, 5);
+  pruefe('Blau: genau ein Feld', blauZiele.length, 1);
+  pruefe('Blau: Zeile 3, Spalte 5', blauZiele[0].ziel, [2, 4]);
+
+  // Ohne weißen Würfel geht Blau nicht.
+  pruefe('Blau: ohne weißen Würfel kein Ziel', moeglicheZiele(blatt, { farbe: 'blau', wert: 3 }, null).length, 0);
+
+  // Gelb bietet auf dem leeren Blatt alle drei Reihen an.
+  pruefe('Gelb: drei Reihen zur Wahl', moeglicheZiele(blatt, { farbe: 'gelb', wert: 4 }, 1).length, 3);
+
+  // Eine 1 reicht für keine graue Startfläche.
+  pruefe('Grau: 1 findet kein Ziel', moeglicheZiele(blatt, { farbe: 'grau', wert: 1 }, 1).length, 0);
+}
+
+{
+  // Ein voller Bereich bietet nichts mehr an.
+  const blatt = leeresBlatt();
+  blatt.pink = blatt.pink.map(() => 1);
+  pruefe('Pink: volle Leiste ohne Ziel', moeglicheZiele(blatt, { farbe: 'pink', wert: 4 }, 1).length, 0);
+}
+
+// ------------------------------------------------- Ein ganzes Spiel am Stück
+
+/** Einfacher Zufall mit festem Startwert, damit der Durchlauf reproduzierbar ist. */
+function gesaetsterZufall(saat: number): Rng {
+  let zustand = saat >>> 0;
+  return () => {
+    zustand = (zustand * 1664525 + 1013904223) >>> 0;
+    return zustand / 0x100000000;
+  };
+}
+
+{
+  // Sechs Runden mit aktiver und passiver Phase durchspielen. Gewählt wird
+  // stumpf das erste mögliche Ziel – es geht nicht um gutes Spiel, sondern
+  // darum, dass der Ablauf ohne Sackgasse durchläuft und die Wertung greift.
+  const rng = gesaetsterZufall(20260907);
+  let blatt = leeresBlatt();
+  let stand = neueRunde(1, rng);
+  let eintraege = 0;
+  let verzichte = 0;
+
+  for (let runde = 1; runde <= RUNDEN; runde++) {
+    while (stand.phase === 'aktiv' && stand.offen.length > 0) {
+      const weiss = weisserWert(stand);
+      const index = stand.offen.findIndex((w) => moeglicheZiele(blatt, w, weiss).length > 0);
+
+      if (index === -1) {
+        stand = verzichten(stand, rng);
+        verzichte++;
+        continue;
+      }
+
+      blatt = eintragen(blatt, moeglicheZiele(blatt, stand.offen[index], weiss)[0]).blatt;
+      eintraege++;
+      stand = nachWahl(stand, index, rng);
+    }
+
+    stand = startePassiv(stand, rng);
+    const waehlbar = passivWaehlbar(stand, blatt);
+    if (waehlbar.length > 0) {
+      blatt = eintragen(blatt, moeglicheZiele(blatt, waehlbar[0], weisserWert(stand))[0]).blatt;
+      eintraege++;
+    }
+
+    stand = naechsteRunde(stand, rng);
+  }
+
+  pruefe('Ganzes Spiel: endet nach sechs Runden', stand.phase, 'spielende');
+  pruefe('Ganzes Spiel: höchstens 4 Einträge pro Runde', eintraege <= RUNDEN * 4, true);
+  pruefe('Ganzes Spiel: es wurde etwas eingetragen', eintraege > 10, true);
+
+  const w = werten(blatt);
+  const summe = w.gelb + w.blau + w.grau + w.gruen + w.pink + w.fuechse;
+  pruefe('Ganzes Spiel: Gesamtpunkte sind die Summe der Bereiche', w.gesamt, summe);
+  pruefe('Ganzes Spiel: Titel vergeben', typeof w.titel === 'string' && w.titel.length > 0, true);
+  console.log(
+    `         ${eintraege} Einträge, ${verzichte} Verzichte, ${blatt.fuechse} Füchse\n` +
+      `         Gelb ${w.gelb}, Blau ${w.blau}, Grau ${w.grau}, Grün ${w.gruen}, ` +
+      `Pink ${w.pink}, Füchse ${w.fuechse} → ${w.gesamt} „${w.titel}"`,
+  );
 }
 
 console.log(fehler === 0 ? '\nAlle Prüfungen bestanden.' : `\n${fehler} Prüfung(en) fehlgeschlagen.`);

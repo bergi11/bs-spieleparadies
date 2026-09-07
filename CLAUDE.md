@@ -105,9 +105,9 @@ veröffentlichte Seite gehören zu `wrangler secret put` – niemals unter
 
 - Fertig: Login, Profile, Launchpad, Spielstände, Wörtchen (deutsches Wordle)
   und Wortsalat (Buchstabenrad mit Kreuzworträtsel).
-- In Arbeit: Clever 4Ever (Würfelspiel, Solo-Variante). Regelkern und
-  Blattdaten stehen und sind geprüft, Würfelablauf und Oberfläche fehlen.
-  Regeln und Blattdaten: `docs/clever-4ever.md`.
+- In Arbeit: Clever 4Ever (Würfelspiel, Solo-Variante). Blattdaten, Regelkern
+  und Würfelablauf stehen und sind geprüft; Oberfläche, Boni und Aktionen
+  fehlen. Regeln, Blattdaten und offene Punkte: `docs/clever-4ever.md`.
 - Es gibt **kein Testframework**. Wird eins gebraucht, vorher kurz abstimmen.
   Einzelne Regelkerne werden stattdessen mit einem einfachen Prüfskript
   abgesichert, das Node direkt ausführt – siehe `npm run check:clever`.
