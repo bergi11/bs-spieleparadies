@@ -156,6 +156,32 @@ export function verzichten(stand: Zugstand, rng: Rng): Zugstand {
 
 export const aktivFertig = (stand: Zugstand) => stand.phase === 'aktiv' && stand.offen.length === 0;
 
+// ---------------------------------------------------------- Silber polieren
+
+/** Lässt sich dieser Würfel in die Richtung polieren? 1 und 6 sind die Grenzen. */
+export const polierbar = (wuerfel: Wuerfel, richtung: 1 | -1) =>
+  wuerfel.wert + richtung >= 1 && wuerfel.wert + richtung <= 6;
+
+/**
+ * Verändert einen Würfel um ±1. Jede Farbe kommt pro Runde nur einmal vor,
+ * deshalb genügt sie zur Bestimmung – der Würfel wird überall gleich
+ * angepasst, egal ob er offen liegt, auf dem Tablett oder auf einem Feld.
+ *
+ * Aus 1 wird nie 6 und umgekehrt: poliert wird, nicht umgedreht.
+ */
+export function polieren(stand: Zugstand, farbe: WuerfelFarbe, richtung: 1 | -1): Zugstand {
+  const anpassen = (w: Wuerfel): Wuerfel =>
+    w.farbe === farbe && polierbar(w, richtung) ? { ...w, wert: w.wert + richtung } : w;
+
+  return {
+    ...stand,
+    offen: stand.offen.map(anpassen),
+    tablett: stand.tablett.map(anpassen),
+    passivFelder: stand.passivFelder.map(anpassen),
+    felder: stand.felder.map((w) => (w === null ? null : anpassen(w))),
+  };
+}
+
 // ------------------------------------------------------------ Passive Phase
 
 /**

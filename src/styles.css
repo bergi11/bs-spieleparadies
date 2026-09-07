@@ -1203,3 +1203,190 @@ h3 {
   font-size: 0.75rem;
   color: var(--muted);
 }
+
+/* ---------- Würfelbühne ---------- */
+
+.clever-buehne {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+}
+
+/* Liegt über dem Blatt und nimmt die ganze Fläche ein – Würfeln soll der
+   auffälligste Moment im Zug sein, nicht eine Randnotiz. */
+.wurf-buehne {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  gap: 0.75rem;
+  background: rgb(18 18 26 / 0.92);
+  z-index: 4;
+}
+
+.wurf-bereit {
+  grid-auto-flow: row;
+  border: none;
+  width: 100%;
+}
+
+.wurf-symbol {
+  font-size: 3.5rem;
+  animation: wippen 2.2s ease-in-out infinite;
+}
+
+@keyframes wippen {
+  0%,
+  100% {
+    transform: rotate(-7deg) translateY(0);
+  }
+  50% {
+    transform: rotate(7deg) translateY(-6px);
+  }
+}
+
+.wurf-text {
+  color: var(--muted);
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+}
+
+.wurf-wolke {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+  max-width: 15rem;
+}
+
+.wuerfel-gross {
+  width: 4rem;
+  height: 4rem;
+  font-size: 1.9rem;
+  border-radius: 14px;
+}
+
+.wurf-rollt .wuerfel-gross {
+  animation: kullern 0.9s cubic-bezier(0.25, 0.7, 0.3, 1) backwards;
+}
+
+@keyframes kullern {
+  0% {
+    transform: translateY(-120%) rotate(-200deg) scale(0.6);
+    opacity: 0;
+  }
+  45% {
+    transform: translateY(8%) rotate(25deg) scale(1.12);
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(-4%) rotate(-8deg) scale(0.98);
+  }
+  100% {
+    transform: translateY(0) rotate(0) scale(1);
+  }
+}
+
+/* Zum Schluss rutscht die Wolke nach unten an ihren Platz. */
+.wurf-landet {
+  background: transparent;
+  pointer-events: none;
+}
+
+.wurf-landet .wurf-wolke {
+  animation: absetzen 0.38s ease-in forwards;
+}
+
+@keyframes absetzen {
+  to {
+    transform: translateY(42vh) scale(0.5);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wurf-symbol,
+  .wurf-rollt .wuerfel-gross,
+  .wurf-landet .wurf-wolke {
+    animation: none;
+  }
+}
+
+/* ---------- Joker-Popup ---------- */
+
+.joker-hof {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 0.45);
+}
+
+.joker-karte {
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  text-align: center;
+  animation: joker-auf 0.3s cubic-bezier(0.2, 1.2, 0.4, 1);
+}
+
+@keyframes joker-auf {
+  from {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+}
+
+.joker-stern {
+  font-size: 2rem;
+  color: var(--accent);
+}
+
+.joker-namen {
+  color: var(--present);
+  font-weight: 600;
+}
+
+/* ---------- Silber polieren ---------- */
+
+.polier-paar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.polier-knoepfe {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.polier {
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--accent);
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: grid;
+  place-items: center;
+}
+
+.polier:disabled {
+  opacity: 0.3;
+  border-color: var(--border);
+}
+
+/* Platzhalter, solange die Würfel noch auf der Bühne sind */
+.wuerfel-verdeckt {
+  background: transparent;
+  border: 2px dashed var(--border);
+}

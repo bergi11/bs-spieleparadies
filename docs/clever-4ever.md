@@ -198,22 +198,28 @@ Durchlauf.
 
 Noch nicht gebaut: Einlösen der Boni und Aktionen sowie die Oberfläche.
 
-## Unsicher
+## Nachträglich geklärt
 
-Diese Punkte sind aus dem Material nicht eindeutig hervorgegangen. Sie sind so
-umgesetzt, wie es am plausibelsten schien – wenn beim Spielen etwas schief
-wirkt, hier zuerst nachsehen:
+Beim Auslesen hatte ich ein Kreissymbol als „weißer Würfel" gelesen. Es ist
+**„Silber polieren"** – an allen neun Stellen. Damit gibt es keinen
+weißen-Würfel-Bonus; die Sorte `weiss` steht nur noch im Typ, damit ältere
+Spielstände lesbar bleiben.
 
-- **Pink Feld 1:** Textlayer sagt „+1", das Blattbild zeigt einen weißen
-  Würfel. Übernommen ist das Bild.
-- **Das „+1"-Symbol** füllt die Extrawürfel-Leiste. Die Anleitung beschreibt
-  „+1" nicht eigens, aber die zweite Aktionsleiste trägt genau dieses Symbol –
-  „+1" heißt hier also „ein Würfel mehr".
-- **Blaue Hauptdiagonale:** Die Anleitung sagt nur, dass zwei Kreuze auf der
-  Diagonale oben links → unten rechts „einen Bonus" geben, ohne ihn zu nennen.
-  Umgesetzt als Fuchs.
-- **Silber polieren** ist nicht umgesetzt. Auf dem Blatt gibt es kein Bonusfeld,
-  das diese Aktion freischaltet – ohne Quelle bliebe die Leiste ohnehin leer.
+Polieren gibt es zu Beginn von **Runde 3** sowie bei Gelb R1F2, Grün F3,
+Pink F1 und im grauen Bereich bei S1R1, S6R3, S10R3, S13R1 und S15R4.
+
+Weiter geklärt:
+
+- **„+1"** füllt die Extrawürfel-Leiste: nach dem Wurf darf ein beliebiger
+  Würfel der Runde noch einmal eingetragen werden, gleich ob er auf dem
+  Tablett liegt oder schon benutzt wurde.
+- **Blaue Hauptdiagonale** (oben links → unten rechts): zwei Kreuze geben einen
+  **Neuwurf**, nicht wie zunächst angenommen einen Fuchs.
+- **Blaue Nebendiagonale** (oben rechts → unten links): 6 Punkte am Ende.
+- **Blau Zeile 6** trägt als Zeilenbonus den **Fuchs**.
+
+Offen bleibt nur noch der Bonus am Ende der Neuwurf-Leiste (lila ?), der noch
+nicht vergeben wird.
 
 ## So geht es weiter
 
@@ -234,11 +240,24 @@ Zurücknehmen geht einen Schritt weit. Der Wurf danach wird mitgespeichert –
 wählt man denselben Würfel erneut, kommen dieselben Würfel wieder, sonst ließe
 sich durch Zurücknehmen ein besserer Wurf erschleichen.
 
+Gewürfelt wird auf einer Bühne über dem Blatt: erst wartet sie auf einen Tipp,
+dann taumeln die Würfel groß über die Fläche, zuletzt rutschen sie nach unten
+an ihren Platz. Bis zur Landung bleiben Würfelleiste und Tablett verdeckt –
+sonst stünde das Ergebnis schon unten, bevor gewürfelt wurde. Ein
+freigeschalteter Joker wird als Popup gezeigt.
+
+Alle drei Aktionen sind einsetzbar: **Neuwurf** wirft die offenen Würfel neu,
+**Extrawürfel** lässt einen beliebigen Würfel der Runde nochmal eintragen,
+**Silber polieren** verändert einen Würfel um ±1 (nie von 1 auf 6 oder
+umgekehrt).
+
 ### Was noch fehlen könnte
 
 - Die Aktionsleisten haben feste Längen (7/7/9), aber es gibt noch keine
   Anzeige des Fortschritts – nur die einsetzbaren Aktionen werden gezeigt.
 - Der Bonus am Ende der Neuwurf-Leiste (lila ?) wird nicht vergeben.
+- Polieren ist etwas großzügiger als die Anleitung: dort geht es vor allem um
+  Tablettwürfel, hier lässt sich jeder gerade wählbare Würfel verändern.
 
 Der Spielstand gehört wie bei den anderen Spielen über
 `useGameSave(user.id, 'clever', …)` in die Datenbank, und das Spiel braucht

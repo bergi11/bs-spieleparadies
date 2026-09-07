@@ -23,9 +23,12 @@ export const BEREICH_NAME: Record<Bereich, string> = {
  * Was ein Bonusfeld auslöst.
  * - `frage`: sofort einzulösender ?-Bonus in der genannten Farbe. `schwarz`
  *   heißt: Farbe frei wählbar.
- * - `weiss`: ein weißer Würfel, also freie Zahl in einem Bereich der Wahl.
- * - `neuwurf` / `extra` / `polieren`: schalten ein Feld der jeweiligen
- *   Aktionsleiste frei.
+ * - `neuwurf` / `plus1` / `polieren`: schalten ein Feld der jeweiligen
+ *   Aktionsleiste frei. `plus1` ist der Extrawürfel.
+ * - `weiss` kommt auf dem Blatt nicht vor. Die Sorte bleibt nur bestehen,
+ *   damit Spielstände aus der Zeit lesbar bleiben, in der das Kreissymbol
+ *   irrtümlich als weißer Würfel gelesen wurde – tatsächlich ist es
+ *   „Silber polieren".
  */
 export type Bonus =
   | { art: 'plus1' }
@@ -38,7 +41,7 @@ export type Bonus =
 
 const f = (farbe: Bereich | 'schwarz'): Bonus => ({ art: 'frage', farbe });
 const plus1: Bonus = { art: 'plus1' };
-const weiss: Bonus = { art: 'weiss' };
+const polieren: Bonus = { art: 'polieren' };
 const neuwurf: Bonus = { art: 'neuwurf' };
 const fuchs: Bonus = { art: 'fuchs' };
 
@@ -47,7 +50,7 @@ const fuchs: Bonus = { art: 'fuchs' };
 export const RUNDEN = 6;
 
 /** Boni zu Rundenbeginn. Ab Runde 5 gibt es keine mehr. */
-export const RUNDEN_BONI: (Bonus | null)[] = [neuwurf, plus1, weiss, f('schwarz'), null, null];
+export const RUNDEN_BONI: (Bonus | null)[] = [neuwurf, plus1, polieren, f('schwarz'), null, null];
 
 // ----------------------------------------------------------------------- Gelb
 
@@ -60,7 +63,7 @@ export const GELB_SPALTEN = 5;
 export const GELB_REIHEN = 3;
 
 export const GELB_BONI: (Bonus | null)[][] = [
-  [null, weiss, f('grau'), f('gruen'), fuchs],
+  [null, polieren, f('grau'), f('gruen'), fuchs],
   [neuwurf, f('pink'), f('blau'), plus1, f('gelb')],
   [null, null, null, null, null],
 ];
@@ -77,7 +80,7 @@ export const BLAU_BONI: (Bonus | null)[] = [
   f('gelb'),
   plus1,
   f('grau'),
-  null,
+  fuchs,
 ];
 
 /** Punkte je Spalte, sobald darin mindestens 2 Kreuze stehen. */
@@ -104,19 +107,19 @@ export const GRAU_RASTER: GrauFarbe[][] = [
 
 /** Bonusfelder als "zeile,spalte" (beide 0-basiert). */
 export const GRAU_BONI: Record<string, Bonus> = {
-  '0,0': weiss,
+  '0,0': polieren,
   '0,5': f('gruen'),
-  '0,12': weiss,
+  '0,12': polieren,
   '1,7': neuwurf,
   '1,15': f('gruen'),
   '2,3': f('pink'),
-  '2,5': weiss,
-  '2,9': weiss,
+  '2,5': polieren,
+  '2,9': polieren,
   '2,13': f('blau'),
   '3,0': neuwurf,
   '3,7': plus1,
   '3,11': f('gelb'),
-  '3,14': weiss,
+  '3,14': polieren,
 };
 
 /** Nur in diesen beiden Teilflächen darf begonnen werden (je ein Feld daraus). */
@@ -135,7 +138,7 @@ export const GRUEN_FELDER = 11;
 export const GRUEN_BONI: (Bonus | null)[] = [
   neuwurf,
   f('blau'),
-  weiss,
+  polieren,
   f('gelb'),
   f('grau'),
   plus1,
@@ -155,7 +158,7 @@ export const PINK_WERTE = [2, 4, 6, 9, 12, 15, 19, 23, 27, 32, 37, 42];
 
 /** Bonus unter dem Feld – greift nur bei einer eingetragenen 5 oder 6. */
 export const PINK_BONI: (Bonus | null)[] = [
-  weiss,
+  polieren,
   null,
   f('gruen'),
   plus1,

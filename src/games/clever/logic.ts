@@ -278,8 +278,10 @@ function blauAusgeloest(vorher: Blatt, nachher: Blatt, zeile: number): Bonus[] {
     pushBonus(boni, BLAU_BONI[zeile]);
   }
 
+  // Zwei Kreuze auf der Hauptdiagonale (oben links → unten rechts) geben einen
+  // Neuwurf. Die Nebendiagonale gibt keinen Bonus, sondern am Ende 6 Punkte.
   const diagonale = (blatt: Blatt) => blatt.blau.filter((z, i) => z[i]).length;
-  if (diagonale(vorher) < 2 && diagonale(nachher) === 2) boni.push({ art: 'fuchs' });
+  if (diagonale(vorher) < 2 && diagonale(nachher) === 2) boni.push({ art: 'neuwurf' });
 
   return boni;
 }

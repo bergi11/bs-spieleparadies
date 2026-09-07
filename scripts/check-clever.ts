@@ -21,7 +21,16 @@ import {
   werten,
   type Blatt,
 } from '../src/games/clever/logic.ts';
-import { GRAU_RASTER, RUNDEN } from '../src/games/clever/sheet.ts';
+import {
+  BLAU_BONI,
+  GELB_BONI,
+  GRAU_BONI,
+  GRAU_RASTER,
+  GRUEN_BONI,
+  PINK_BONI,
+  RUNDEN,
+  RUNDEN_BONI,
+} from '../src/games/clever/sheet.ts';
 import {
   WUERFEL_FARBEN,
   moeglicheZiele,
@@ -29,6 +38,8 @@ import {
   naechsteRunde,
   neueRunde,
   passivWaehlbar,
+  polierbar,
+  polieren,
   startePassiv,
   verzichten,
   weisserWert,
@@ -104,6 +115,33 @@ function pruefe(name: string, ist: unknown, soll: unknown) {
   const b = leeresBlatt();
   b.pink = [2, 4, 6, 1, 1, 1, 1, 1, null, null, null, null];
   pruefe('Pink: Beispiel aus der Anleitung', punktePink(b), 32);
+}
+
+// ------------------------------------------------------- Blaue Sonderfälle
+
+{
+  // Zwei Kreuze in Zeile 6 geben einen Fuchs.
+  const b = leeresBlatt();
+  b.blau[5][0] = true;
+  const { boni } = eintragen(b, { bereich: 'blau', wert: 6, ziel: [5, 2] });
+  pruefe('Blau: Zeile 6 gibt einen Fuchs', boni.some((x) => x.art === 'fuchs'), true);
+}
+
+{
+  // Zwei Kreuze auf der Hauptdiagonale geben einen Neuwurf, keinen Fuchs.
+  const b = leeresBlatt();
+  b.blau[0][0] = true;
+  const { boni } = eintragen(b, { bereich: 'blau', wert: 3, ziel: [2, 2] });
+  pruefe('Blau: Hauptdiagonale gibt einen Neuwurf', boni.some((x) => x.art === 'neuwurf'), true);
+  pruefe('Blau: Hauptdiagonale gibt keinen Fuchs', boni.some((x) => x.art === 'fuchs'), false);
+}
+
+{
+  // Die Nebendiagonale zählt erst am Ende, mit 6 Punkten.
+  const b = leeresBlatt();
+  b.blau[0][5] = true;
+  b.blau[5][0] = true;
+  pruefe('Blau: Nebendiagonale gibt 6 Punkte', punkteBlau(b), 6);
 }
 
 // ------------------------------------------------------------ Zugregeln
@@ -344,6 +382,48 @@ const farben = (w: { farbe: string }[]) => w.map((x) => x.farbe);
   const blatt = leeresBlatt();
   blatt.pink = blatt.pink.map(() => 1);
   pruefe('Pink: volle Leiste ohne Ziel', moeglicheZiele(blatt, { farbe: 'pink', wert: 4 }, 1).length, 0);
+}
+
+// ------------------------------------------------------------- Polieren
+
+{
+  const stand = neueRunde(1, festeWuerfel([3, 1, 6, 4, 4, 2]));
+  const hoch = polieren(stand, 'gelb', 1);
+  pruefe('Polieren: +1 wirkt', werte(hoch.offen)[0], 4);
+  const runter = polieren(stand, 'gelb', -1);
+  pruefe('Polieren: −1 wirkt', werte(runter.offen)[0], 2);
+
+  // Aus 1 wird nie 6 und aus 6 nie 1 – poliert wird, nicht umgedreht.
+  pruefe('Polieren: 1 nicht weiter runter', polierbar({ farbe: 'blau', wert: 1 }, -1), false);
+  pruefe('Polieren: 6 nicht weiter hoch', polierbar({ farbe: 'grau', wert: 6 }, 1), false);
+  pruefe('Polieren: unveränderte 1 bleibt', werte(polieren(stand, 'blau', -1).offen)[1], 1);
+
+  // Der Würfel wird überall angepasst, auch wenn er längst abgelegt ist.
+  const nach = nachWahl(stand, 2, festeWuerfel([5, 5]));
+  const poliertesTablett = polieren(nach, 'gelb', -1);
+  pruefe(
+    'Polieren: wirkt auch auf dem Tablett',
+    poliertesTablett.tablett.find((w) => w.farbe === 'gelb')?.wert,
+    2,
+  );
+}
+
+{
+  // Alle Kreissymbole auf dem Blatt sind "Silber polieren", kein weißer Würfel.
+  const alleBoni = [
+    ...RUNDEN_BONI,
+    ...GELB_BONI.flat(),
+    ...BLAU_BONI,
+    ...Object.values(GRAU_BONI),
+    ...GRUEN_BONI,
+    ...PINK_BONI,
+  ].filter(Boolean);
+  pruefe('Kein weisser-Wuerfel-Bonus mehr auf dem Blatt', alleBoni.some((b) => b!.art === 'weiss'), false);
+  pruefe(
+    'Polierboni vorhanden',
+    alleBoni.filter((b) => b!.art === 'polieren').length,
+    9,
+  );
 }
 
 // ------------------------------------------------- Ein ganzes Spiel am Stück
