@@ -5,6 +5,7 @@ import { WordPuzzle } from './wordpuzzle/WordPuzzle';
 import { Clever } from './clever/Clever';
 import { Hangman } from './hangman/Hangman';
 import { Intersections } from './intersections/Intersections';
+import { Skyscrapers } from './skyscrapers/Skyscrapers';
 
 export interface GameProps {
   user: User;
@@ -117,6 +118,26 @@ export const GAMES: GameDefinition[] = [
     icon: '✚',
     accent: '#4cc9f0',
     component: Intersections,
+    summary: (state) => {
+      const s = state as { raetsel?: number; stats?: { geloest?: number } } | null;
+      if (!s?.raetsel) return null;
+      const geloest = s.stats?.geloest ?? 0;
+      return geloest ? `Rätsel ${s.raetsel} · ${geloest} gelöst` : `Rätsel ${s.raetsel}`;
+    },
+    bestwert: (state) => {
+      const s = state as { stats?: { geloest?: number; makellos?: number } } | null;
+      if (!s?.stats?.geloest) return null;
+      const { geloest = 0, makellos = 0 } = s.stats;
+      return { wert: geloest, text: `${geloest} gelöst · ${makellos} ohne Tipp` };
+    },
+  },
+  {
+    id: 'skyscrapers',
+    title: 'Wolkenkratzer',
+    tagline: 'Häuser zählen, Höhen ausschließen',
+    icon: '🏙️',
+    accent: '#c77dff',
+    component: Skyscrapers,
     summary: (state) => {
       const s = state as { raetsel?: number; stats?: { geloest?: number } } | null;
       if (!s?.raetsel) return null;

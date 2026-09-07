@@ -8,6 +8,7 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p worker",
     "check:clever": "rolldown scripts/check-clever.ts -o node_modules/.tmp-check.mjs -f esm -p node && node node_modules/.tmp-check.mjs",
     "check:intersections": "rolldown scripts/check-intersections.ts -o node_modules/.tmp-check-int.mjs -f esm -p node && node node_modules/.tmp-check-int.mjs",
+    "check:skyscrapers": "rolldown scripts/check-skyscrapers.ts -o node_modules/.tmp-check-sky.mjs -f esm -p node && node node_modules/.tmp-check-sky.mjs",
     "build": "npm run typecheck && vite build",
     "preview": "wrangler dev",
     "db:local": "wrangler d1 execute bs-spieleparadies --local --file=./schema.sql",
@@ -16,6 +17,7 @@
     "words:puzzle": "node scripts/build-wordpuzzle.mjs",
     "words:hangman": "node scripts/build-hangman.mjs",
     "words:intersections": "node scripts/build-intersections.mjs",
+    "puzzles:skyscrapers": "node scripts/build-skyscrapers.mjs",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {

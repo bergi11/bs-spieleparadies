@@ -2046,3 +2046,179 @@ h3 {
     font-size: 0.58rem;
   }
 }
+
+/* ---------- Wolkenkratzer ---------- */
+
+.turm-brett {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem;
+  overflow: auto;
+}
+
+/* Die Randspuren tragen nur eine Ziffer und dürfen schmaler bleiben – der
+   Platz gehört den Feldern. */
+.turm-gitter {
+  display: grid;
+  grid-template-columns: 0.62fr repeat(var(--felder), minmax(0, 1fr)) 0.62fr;
+  grid-template-rows: 0.62fr repeat(var(--felder), minmax(2.3rem, 1fr)) 0.62fr;
+  gap: 0.25rem;
+  /* Quadratisch, damit die Felder nicht in die Höhe schießen. Wird der Platz
+     zu knapp, werden sie flacher statt schmaler – Ziffern brauchen weniger
+     Höhe als Breite. */
+  width: min(100%, 26rem);
+  aspect-ratio: 1;
+  max-height: 100%;
+}
+
+.turm-hinweis {
+  display: grid;
+  place-items: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+/* Ein Hinweis wird erst rot, wenn seine Reihe voll ist. Vorher wäre die
+   Meldung nur Lärm – die Sicht ändert sich mit jedem weiteren Haus. */
+.turm-hinweis-fehler {
+  color: var(--danger);
+}
+
+.turm-feld {
+  display: grid;
+  place-items: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-family: inherit;
+  color: var(--text);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.turm-feld:disabled {
+  cursor: default;
+}
+
+/* Zeile und Spalte des gewählten Feldes stehen leicht hervor: beim Zählen auf
+   dem Handy verliert man sonst ständig die Reihe. */
+.turm-feld-linie {
+  background: rgba(124, 92, 255, 0.12);
+}
+
+.turm-feld-gewaehlt {
+  background: rgba(124, 92, 255, 0.18);
+  border-color: var(--accent);
+}
+
+/* Verratene Felder bleiben sichtbar anders – sonst sähe das gelöste Gitter am
+   Ende aus, als hätte man alles selbst gefunden. */
+.turm-feld-verraten {
+  background: rgba(255, 183, 3, 0.14);
+  border-color: var(--present);
+}
+
+.turm-feld-fehler {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.turm-hoehe {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Notizen sitzen als Miniraster im Feld; leere Plätze halten die Ziffern an
+   ihrer Stelle, damit die 5 nicht wandert, wenn die 2 wegfällt. */
+.turm-notizen {
+  display: grid;
+  grid-template-columns: repeat(var(--spalten), 1fr);
+  gap: 0.05rem;
+  font-size: 0.55rem;
+  line-height: 1.1;
+  color: var(--muted);
+}
+
+.turm-notizen span {
+  min-width: 0.6rem;
+  text-align: center;
+}
+
+.turm-fuss {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem calc(0.6rem + env(safe-area-inset-bottom));
+}
+
+.turm-tasten {
+  display: flex;
+  gap: 0.3rem;
+  width: 100%;
+  max-width: 26rem;
+}
+
+.turm-taste {
+  flex: 1;
+  min-width: 0;
+  min-height: 3rem;
+  border-radius: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.turm-taste:disabled {
+  opacity: 0.4;
+}
+
+.turm-taste-aktiv {
+  background: rgba(124, 92, 255, 0.24);
+  border-color: var(--accent);
+}
+
+.turm-taste-weg {
+  font-size: 1rem;
+  color: var(--muted);
+}
+
+.turm-leiste {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.turm-leiste .button {
+  min-height: 2.75rem;
+}
+
+.turm-fuss .hint {
+  margin: 0;
+}
+
+/* Umschalter, der eingerastet ist. */
+.button-an {
+  background: rgba(124, 92, 255, 0.2);
+  border-color: var(--accent);
+}
+
+@media (max-width: 380px) {
+  .turm-gitter {
+    gap: 0.18rem;
+  }
+
+  .turm-hinweis {
+    font-size: 0.8rem;
+  }
+
+  .turm-taste {
+    min-height: 2.75rem;
+    font-size: 1rem;
+  }
+}
