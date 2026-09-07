@@ -24,6 +24,7 @@
     "puzzles:nonograms": "node scripts/build-nonograms.mjs",
     "puzzles:bridges": "node scripts/build-bridges.mjs",
     "puzzles:crossword": "node scripts/build-crossword.mjs",
+    "icons": "node scripts/build-icons.mjs",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
