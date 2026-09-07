@@ -12,6 +12,7 @@ import {
   passivWaehlbar,
   startePassiv,
   verzichten,
+  alleWuerfel,
   weisserWert,
   werfen,
   type Wuerfel,
@@ -63,6 +64,15 @@ export function Clever({ user, onExit }: GameProps) {
   const [zurueck, setZurueck] = useState<{ vorher: Laufend; index: number; nachher: Zugstand } | null>(
     null,
   );
+  /**
+   * Zählt jeden Wurf. Die Würfel bekommen die Nummer in ihren React-Key, damit
+   * sie bei einem neuen Wurf neu aufgebaut werden und die Animation anläuft –
+   * sonst wechselt nur lautlos die Zahl.
+   */
+  const [wurfNr, setWurfNr] = useState(0);
+  const gewuerfelt = () => setWurfNr((n) => n + 1);
+  /** Die Aktion „Extrawürfel" lässt einen der sechs Würfel der Runde nehmen. */
+  const [extraModus, setExtraModus] = useState(false);
 
   /**
    * In der Warteschlange dürfen nur Boni stehen, die sich auch abfragen
@@ -97,6 +107,8 @@ export function Clever({ user, onExit }: GameProps) {
     persist((v) => ({ ...v, laufend: start }));
     setGewaehlt(null);
     setZurueck(null);
+    setExtraModus(false);
+    gewuerfelt();
   };
 
   const beenden = (blatt: Blatt) => {
@@ -126,10 +138,12 @@ export function Clever({ user, onExit }: GameProps) {
 
     const bonus = laufend.boni[0];
     if (bonus) {
-      if (bonusWert === null) return [];
+      // Der weiße Würfel behält seinen gewürfelten Wert – frei wählbar ist nur
+      // der Bereich. Eine Zahl darf man sich ausschließlich beim ? aussuchen.
       if (bonus.art === 'weiss') {
-        return moeglicheZiele(laufend.blatt, { farbe: 'weiss', wert: bonusWert }, weiss);
+        return weiss === null ? [] : moeglicheZiele(laufend.blatt, { farbe: 'weiss', wert: weiss }, weiss);
       }
+      if (bonusWert === null) return [];
       if (bonus.art === 'frage') {
         const farbe = bonus.farbe === 'schwarz' ? bonusFarbe : bonus.farbe;
         if (!farbe) return [];
@@ -151,9 +165,9 @@ export function Clever({ user, onExit }: GameProps) {
     }
 
     if (gewaehlt === null) return [];
-    const w = waehlbareWuerfel(laufend)[gewaehlt];
+    const w = (extraModus ? alleWuerfel(laufend.stand) : waehlbareWuerfel(laufend))[gewaehlt];
     return w ? moeglicheZiele(laufend.blatt, w, weiss) : [];
-  }, [laufend, gewaehlt, bonusWert, bonusFarbe, weiss]);
+  }, [laufend, gewaehlt, bonusWert, bonusFarbe, weiss, extraModus]);
 
   /**
    * Es wird immer nur ein Bereich gezeigt. Liegen die möglichen Ziele in einem
@@ -193,7 +207,7 @@ export function Clever({ user, onExit }: GameProps) {
 
   const wuerfelAntippen = (index: number) => {
     if (!laufend) return;
-    const w = waehlbareWuerfel(laufend)[index];
+    const w = (extraModus ? alleWuerfel(laufend.stand) : waehlbareWuerfel(laufend))[index];
     const moeglich = moeglicheZiele(laufend.blatt, w, weiss);
 
     if (moeglich.length === 0) {
@@ -217,6 +231,16 @@ export function Clever({ user, onExit }: GameProps) {
     if (!laufend) return;
     const vorher = laufend;
     const zwischen = anwenden(laufend, ziel, laufend.boni);
+    meldeNeueBoni(laufend, zwischen);
+
+    // Ein Extrawürfel hängt nur am Zug dran: er verbraucht kein Würfelfeld und
+    // dreht den Wurf nicht weiter.
+    if (extraModus) {
+      persist((v) => ({ ...v, laufend: zwischen }));
+      setExtraModus(false);
+      setGewaehlt(null);
+      return;
+    }
 
     if (laufend.stand.phase === 'aktiv') {
       const wiederholt = zurueck && zurueck.index === index && zurueck.vorher.stand === vorher.stand;
@@ -228,7 +252,21 @@ export function Clever({ user, onExit }: GameProps) {
       persist((v) => ({ ...v, laufend: rundenBonusAnhaengen(nach, laufend.stand.runde) }));
       setZurueck(null);
     }
+    gewuerfelt();
     setGewaehlt(null);
+  };
+
+  /**
+   * Ein freigeschalteter Bonus darf nicht untergehen – ohne Hinweis merkt man
+   * gar nicht, dass das Platzieren gerade etwas ausgelöst hat.
+   */
+  const meldeNeueBoni = (vorher: Laufend, nachher: Laufend) => {
+    const neue: string[] = [];
+    if (nachher.aktionen.neuwurf.frei > vorher.aktionen.neuwurf.frei) neue.push('Neuwurf');
+    if (nachher.aktionen.extra.frei > vorher.aktionen.extra.frei) neue.push('Extrawürfel');
+    if (nachher.blatt.fuechse > vorher.blatt.fuechse) neue.push('Fuchs');
+    for (const b of nachher.boni.slice(vorher.boni.length)) neue.push(bonusName(b));
+    if (neue.length) zeige(`Erhalten: ${neue.join(', ')}`);
   };
 
   const zurueckNehmen = () => {
@@ -253,17 +291,21 @@ export function Clever({ user, onExit }: GameProps) {
     persist((v) => ({ ...v, laufend: { ...laufend, stand, aktionen } }));
     setGewaehlt(null);
     setZurueck(null);
+    gewuerfelt();
   };
 
   const extraEinsetzen = () => {
     if (!laufend) return;
-    // Ein zusätzlicher Würfel am Zugende: frei wählbarer Wert, deshalb wie ein
-    // weißer Würfel behandelt.
+    // Ein zusätzlicher Würfel am Zugende. Gewählt wird einer der sechs Würfel
+    // dieser Runde mit seinem gewürfelten Wert, nicht eine freie Zahl.
     const aktionen = {
       ...laufend.aktionen,
       extra: { ...laufend.aktionen.extra, benutzt: laufend.aktionen.extra.benutzt + 1 },
     };
-    persist((v) => ({ ...v, laufend: { ...laufend, aktionen, boni: [...laufend.boni, { art: 'weiss' }] } }));
+    persist((v) => ({ ...v, laufend: { ...laufend, aktionen } }));
+    setExtraModus(true);
+    setGewaehlt(null);
+    zeige(`Extrawürfel: einen der sechs Würfel dieser Runde wählen.`);
   };
 
   // ------------------------------------------------------------- Anzeige
@@ -309,7 +351,7 @@ export function Clever({ user, onExit }: GameProps) {
 
   const { blatt, stand, aktionen, boni } = laufend;
   const bonus = boni[0];
-  const waehlbar = waehlbareWuerfel(laufend);
+  const waehlbar = extraModus ? alleWuerfel(stand) : waehlbareWuerfel(laufend);
   const phaseFertig = stand.phase === 'aktiv' && stand.offen.length === 0;
   const Ansicht = ANSICHTEN[bereich];
 
@@ -362,14 +404,21 @@ export function Clever({ user, onExit }: GameProps) {
             onExtra={extraEinsetzen}
           />
 
+          {extraModus && (
+            <div className="bonus-hinweis">
+              Extrawürfel: einen der sechs Würfel dieser Runde wählen – mit seinem Wert.
+            </div>
+          )}
+
           <div className="wuerfel-reihe">
             {waehlbar.map((w, i) => {
               const nutzbar = moeglicheZiele(blatt, w, weiss).length > 0;
               return (
                 <button
-                  key={`${w.farbe}-${i}`}
+                  key={`${wurfNr}-${w.farbe}-${i}`}
                   className={[
                     'wuerfel',
+                    'wuerfel-neu',
                     `wuerfel-${w.farbe}`,
                     gewaehlt === i ? 'wuerfel-gewaehlt' : '',
                     nutzbar ? '' : 'wuerfel-blass',
@@ -386,7 +435,12 @@ export function Clever({ user, onExit }: GameProps) {
           </div>
 
           <div className="clever-knoepfe">
-            {zurueck && (
+            {extraModus && (
+              <button className="button button-ghost" onClick={() => setExtraModus(false)}>
+                Doch keinen
+              </button>
+            )}
+            {!extraModus && zurueck && (
               <button className="button button-ghost" onClick={zurueckNehmen}>
                 Zurücknehmen
               </button>
@@ -398,6 +452,7 @@ export function Clever({ user, onExit }: GameProps) {
                   persist((v) => ({ ...v, laufend: { ...laufend, stand: verzichten(stand, wuerfel) } }));
                   setGewaehlt(null);
                   setZurueck(null);
+                  gewuerfelt();
                 }}
               >
                 Verzichten
@@ -410,6 +465,7 @@ export function Clever({ user, onExit }: GameProps) {
                   persist((v) => ({ ...v, laufend: { ...laufend, stand: startePassiv(stand, wuerfel) } }));
                   setGewaehlt(null);
                   setZurueck(null);
+                  gewuerfelt();
                 }}
               >
                 Weiter: Tablett
@@ -422,6 +478,7 @@ export function Clever({ user, onExit }: GameProps) {
                   const nach = { ...laufend, stand: naechsteRunde(stand, wuerfel) };
                   persist((v) => ({ ...v, laufend: rundenBonusAnhaengen(nach, stand.runde) }));
                   setZurueck(null);
+                  gewuerfelt();
                 }}
               >
                 Runde beenden
@@ -439,6 +496,25 @@ export function Clever({ user, onExit }: GameProps) {
 /** In der aktiven Phase die geworfenen, in der passiven die vom Tablett. */
 function waehlbareWuerfel(l: Laufend): Wuerfel[] {
   return l.stand.phase === 'passiv' ? passivWaehlbar(l.stand, l.blatt) : l.stand.offen;
+}
+
+/** Lesbarer Name eines Bonus für Hinweise. */
+function bonusName(bonus: Bonus): string {
+  switch (bonus.art) {
+    case 'frage':
+      return bonus.farbe === 'schwarz' ? 'schwarzes ?' : `${BEREICH_NAME[bonus.farbe]}-?`;
+    case 'weiss':
+      return 'weißer Würfel';
+    case 'plus1':
+    case 'extra':
+      return 'Extrawürfel';
+    case 'neuwurf':
+      return 'Neuwurf';
+    case 'fuchs':
+      return 'Fuchs';
+    case 'polieren':
+      return 'Silber polieren';
+  }
 }
 
 /**
@@ -654,14 +730,34 @@ function BonusWahl({
   const zahlen = [1, 2, 3, 4, 5, 6];
   const nichtsMoeglich = zielFarbe !== null && zahlen.every((z) => !zahlGeht(z));
 
+  // Beim weißen Würfel steht die Zahl schon fest – gewürfelt ist gewürfelt.
+  // Frei wählen darf man nur den Bereich, deshalb entfällt hier die Zahlwahl.
+  if (bonus.art === 'weiss') {
+    return (
+      <div className="clever-zug bonus-zug">
+        <div className="bonus-kopf">Weißer Würfel: {weiss ?? '–'}</div>
+        <div className="bonus-hinweis">
+          {weiss === null
+            ? 'Kein weißer Würfel in dieser Runde.'
+            : 'Bereich im Blatt antippen – nicht für Blau.'}
+        </div>
+        {(weiss === null || moeglicheZiele(blatt, { farbe: 'weiss', wert: weiss }, weiss).length === 0) && (
+          <div className="clever-knoepfe">
+            <button className="button" onClick={onVerfallen}>
+              Kein Platz – Bonus verfällt
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="clever-zug bonus-zug">
       <div className="bonus-kopf">
-        {bonus.art === 'weiss'
-          ? 'Weißer Würfel: Zahl und Bereich frei wählen'
-          : schwarz && !farbe
-            ? 'Schwarzer Bonus: Farbe wählen'
-            : `Bonus ${zielFarbe && zielFarbe !== 'weiss' ? BEREICH_NAME[zielFarbe] : ''}: Zahl wählen`}
+        {schwarz && !farbe
+          ? 'Schwarzer Bonus: Farbe wählen'
+          : `Bonus ${zielFarbe && zielFarbe !== 'weiss' ? BEREICH_NAME[zielFarbe] : ''}: Zahl wählen`}
       </div>
 
       {schwarz && !farbe ? (

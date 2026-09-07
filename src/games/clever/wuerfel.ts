@@ -73,13 +73,25 @@ export function neueRunde(runde: number, rng: Rng): Zugstand {
 }
 
 /**
+ * Alle Würfel dieser Runde, egal wo sie liegen. Die Aktion „Extrawürfel" darf
+ * sich einen davon aussuchen – auch einen, der schon benutzt wurde.
+ */
+export function alleWuerfel(stand: Zugstand): Wuerfel[] {
+  return [
+    ...stand.offen,
+    ...stand.tablett,
+    ...stand.passivFelder,
+    ...stand.felder.filter((w): w is Wuerfel => w !== null),
+  ];
+}
+
+/**
  * Der Wert des weißen Würfels dieser Runde – egal wo er gerade liegt. Für
  * Blau wird er als Spaltenangabe gebraucht, auch wenn er längst auf dem
  * Tablett liegt.
  */
 export function weisserWert(stand: Zugstand): number | null {
-  const alle = [...stand.offen, ...stand.tablett, ...stand.passivFelder, ...stand.felder];
-  return alle.find((w) => w?.farbe === 'weiss')?.wert ?? null;
+  return alleWuerfel(stand).find((w) => w.farbe === 'weiss')?.wert ?? null;
 }
 
 // -------------------------------------------------------------- Aktive Phase

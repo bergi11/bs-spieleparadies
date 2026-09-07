@@ -75,7 +75,7 @@ export function GelbAnsicht({ blatt, ziele, onZiel }: Props) {
   const zielFuer = (reihe: number) => ziele.find((z) => z.bereich === 'gelb' && z.ziel === reihe);
 
   return (
-    <svg className="bereich" viewBox={`0 0 ${breite} ${hoehe}`}>
+    <svg className="bereich bereich-gelb" viewBox={`0 0 ${breite} ${hoehe}`}>
       {['↗', '−', '+'].map((zeichen, reihe) => (
         <text
           key={reihe}
@@ -146,9 +146,11 @@ export function GelbAnsicht({ blatt, ziele, onZiel }: Props) {
 
 export function BlauAnsicht({ blatt, ziele, onZiel }: Props) {
   const Z = 18;
+  const links = 14;
+  const oben = 14;
   const rechts = 16;
-  const breite = 6 * Z + rechts;
-  const hoehe = 6 * Z + 14;
+  const breite = links + 6 * Z + rechts;
+  const hoehe = oben + 6 * Z + 14;
 
   const zielFuer = (r: number, c: number) =>
     ziele.find(
@@ -156,7 +158,34 @@ export function BlauAnsicht({ blatt, ziele, onZiel }: Props) {
     );
 
   return (
-    <svg className="bereich" viewBox={`0 0 ${breite} ${hoehe}`}>
+    <svg className="bereich bereich-blau" viewBox={`0 0 ${breite} ${hoehe}`}>
+      {/* Der blaue Würfel gibt die Zeile vor, der weiße die Spalte. Ohne die
+          Beschriftung sieht man nicht, wo ein Wurf landen wird. */}
+      {[1, 2, 3, 4, 5, 6].map((n, r) => (
+        <text
+          key={`zeile-${n}`}
+          x={links / 2}
+          y={oben + r * Z + Z / 2}
+          className="achse achse-blau"
+          textAnchor="middle"
+          dominantBaseline="central"
+        >
+          {n}
+        </text>
+      ))}
+      {[1, 2, 3, 4, 5, 6].map((n, c) => (
+        <text
+          key={`spalte-${n}`}
+          x={links + c * Z + Z / 2}
+          y={oben / 2}
+          className="achse achse-weiss"
+          textAnchor="middle"
+          dominantBaseline="central"
+        >
+          {n}
+        </text>
+      ))}
+
       {blatt.blau.map((reihe, r) =>
         reihe.map((gekreuzt, c) => {
           const ziel = zielFuer(r, c);
@@ -167,8 +196,8 @@ export function BlauAnsicht({ blatt, ziele, onZiel }: Props) {
               className={ziel ? 'feld-klickbar' : undefined}
             >
               <rect
-                x={c * Z + 1}
-                y={r * Z + 1}
+                x={links + c * Z + 1}
+                y={oben + r * Z + 1}
                 width={Z - 2}
                 height={Z - 2}
                 rx={3}
@@ -176,8 +205,8 @@ export function BlauAnsicht({ blatt, ziele, onZiel }: Props) {
               />
               {gekreuzt && (
                 <text
-                  x={c * Z + Z / 2}
-                  y={r * Z + Z / 2}
+                  x={links + c * Z + Z / 2}
+                  y={oben + r * Z + Z / 2}
                   className="feld-wert"
                   textAnchor="middle"
                   dominantBaseline="central"
@@ -191,14 +220,16 @@ export function BlauAnsicht({ blatt, ziele, onZiel }: Props) {
       )}
 
       {BLAU_BONI.map((bonus, r) =>
-        bonus ? <BonusZeichen key={r} bonus={bonus} x={6 * Z + rechts / 2} y={r * Z + Z / 2} /> : null,
+        bonus ? (
+          <BonusZeichen key={r} bonus={bonus} x={links + 6 * Z + rechts / 2} y={oben + r * Z + Z / 2} />
+        ) : null,
       )}
 
       {BLAU_SPALTENWERTE.map((wert, c) => (
         <text
           key={c}
-          x={c * Z + Z / 2}
-          y={6 * Z + 7}
+          x={links + c * Z + Z / 2}
+          y={oben + 6 * Z + 7}
           className={`spaltenwert${blatt.blau.filter((z) => z[c]).length >= 2 ? ' spaltenwert-voll' : ''}`}
           textAnchor="middle"
           dominantBaseline="central"
@@ -226,7 +257,7 @@ export function GrauAnsicht({ blatt, ziele, onZiel }: Props) {
   }
 
   return (
-    <svg className="bereich" viewBox={`0 0 ${breite} ${hoehe}`}>
+    <svg className="bereich bereich-grau" viewBox={`0 0 ${breite} ${hoehe}`}>
       {GRAU_GRUPPEN.map((gruppe, index) => {
         const ziel = zielFuerGruppe.get(index);
         return (
@@ -311,7 +342,7 @@ export function GruenAnsicht({ blatt, ziele, onZiel }: Props) {
   const naechstesUnten = blatt.gruenUnten.findIndex((w) => w === null);
 
   return (
-    <svg className="bereich" viewBox={`0 0 ${breite} ${hoehe}`}>
+    <svg className="bereich bereich-gruen" viewBox={`0 0 ${breite} ${hoehe}`}>
       {Array.from({ length: GRUEN_FELDER }, (_, i) => {
         const oben = blatt.gruenOben[i];
         const unten = blatt.gruenUnten[i];
@@ -375,7 +406,7 @@ export function PinkAnsicht({ blatt, ziele, onZiel }: Props) {
   const naechstes = blatt.pink.findIndex((w) => w === null);
 
   return (
-    <svg className="bereich" viewBox={`0 0 ${breite} ${hoehe}`}>
+    <svg className="bereich bereich-pink" viewBox={`0 0 ${breite} ${hoehe}`}>
       {PINK_WERTE.map((punkte, i) => {
         const wert = blatt.pink[i];
         const x = i * Z;

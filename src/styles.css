@@ -774,8 +774,9 @@ h3 {
 :root {
   --c-gelb: #ffb703;
   --c-blau: #4cc9f0;
-  /* Der graue Bereich ist auf dem Blatt orange gerahmt – daher orange. */
-  --c-grau: #ff8c42;
+  /* Auf dem Blatt ist der graue Bereich orange gerahmt. Hier trotzdem grau:
+     der Würfel muss ohne Nachdenken zum Bereich passen. */
+  --c-grau: #b9bdc9;
   --c-gruen: #3ddc97;
   --c-pink: #b06ad6;
 }
@@ -794,9 +795,26 @@ h3 {
   max-height: 100%;
 }
 
+/* Schwacher Farbstich je Bereich, damit man auf einen Blick sieht, wo man ist. */
+.bereich-gelb {
+  --feld-grund: #3a3324;
+}
+.bereich-blau {
+  --feld-grund: #23333c;
+}
+.bereich-grau {
+  --feld-grund: var(--surface-2);
+}
+.bereich-gruen {
+  --feld-grund: #24382f;
+}
+.bereich-pink {
+  --feld-grund: #33263b;
+}
+
 /* Felder im Blatt */
 .feld {
-  fill: var(--surface-2);
+  fill: var(--feld-grund, var(--surface-2));
   stroke: var(--border);
   stroke-width: 0.5;
   transition: fill 0.15s ease;
@@ -1122,5 +1140,66 @@ h3 {
 
 .mini-leer {
   background: var(--surface-2);
+  color: var(--muted);
+}
+
+/* Achsenbeschriftung im blauen Feld: Zeile vom blauen, Spalte vom weißen Würfel */
+.achse {
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.achse-blau {
+  fill: var(--c-blau);
+}
+
+.achse-weiss {
+  fill: #f2f2f7;
+}
+
+/* Würfelwurf: kurzes Taumeln, leicht versetzt, damit man sieht dass neu
+   gewürfelt wurde und nicht nur eine Zahl gewechselt hat. */
+@keyframes taumeln {
+  0% {
+    transform: rotate(-24deg) scale(0.75);
+    opacity: 0.3;
+  }
+  55% {
+    transform: rotate(10deg) scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(0) scale(1);
+  }
+}
+
+.wuerfel-neu {
+  animation: taumeln 0.42s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wuerfel-neu {
+    animation: none;
+  }
+}
+
+/* Frisch erhaltener Bonus – soll ins Auge fallen. */
+@keyframes bonus-pochen {
+  0%,
+  100% {
+    box-shadow: 0 -2px 0 0 var(--accent);
+  }
+  50% {
+    box-shadow: 0 -2px 0 0 var(--accent), 0 0 18px 2px rgb(124 92 255 / 0.55);
+  }
+}
+
+.bonus-zug {
+  animation: bonus-pochen 1.4s ease-in-out 3;
+}
+
+.bonus-hinweis {
+  text-align: center;
+  font-size: 0.75rem;
   color: var(--muted);
 }
