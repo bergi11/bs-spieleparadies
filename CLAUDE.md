@@ -119,4 +119,11 @@ veröffentlichte Seite gehören zu `wrangler secret put` – niemals unter
   Wortsalat, `npm run words:hangman` für die Rätselwörter des Galgenmännchens,
   `npm run words:intersections` für Wortlisten, Regeln und Rätsel der
   Schnittpunkte. Nie direkt bearbeiten – Änderungen gehören ins jeweilige
-  Skript unter `scripts/`.
+  Skript unter `scripts/`. Das gilt genauso für die PNG-Icons unter `public/`:
+  `npm run icons` zeichnet sie aus derselben Geometrie wie `icon.svg`.
+- Die Seite lässt sich auf dem Handy als App auf den Homebildschirm legen.
+  Dafür hängen `index.html`, `public/manifest.webmanifest` und die Icons
+  zusammen – iOS nimmt für das Symbol nur das `apple-touch-icon` als PNG.
+  Es gibt bewusst **keinen Service Worker**: iOS braucht für den
+  Homebildschirm keinen, und ein hängender Cache wäre auf dem Handy schwer
+  wieder loszuwerden.

@@ -16,6 +16,7 @@
     "words:puzzle": "node scripts/build-wordpuzzle.mjs",
     "words:hangman": "node scripts/build-hangman.mjs",
     "words:intersections": "node scripts/build-intersections.mjs",
+    "icons": "node scripts/build-icons.mjs",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
