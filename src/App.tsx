@@ -4,6 +4,7 @@ import { useHashRoute } from './lib/useHashRoute';
 import { LoginScreen } from './screens/LoginScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { Launchpad } from './screens/Launchpad';
+import { Bestenliste } from './screens/Bestenliste';
 import { gameById } from './games/registry';
 
 const LAST_USER_KEY = 'bsp.lastUser';
@@ -82,6 +83,8 @@ export function App() {
     );
   }
 
+  if (route === '/bestenliste') return <Bestenliste onExit={back} />;
+
   const gameMatch = route.match(/^\/game\/(.+)$/);
   if (gameMatch) {
     const game = gameById(gameMatch[1]);
@@ -96,6 +99,7 @@ export function App() {
       user={user}
       onOpenGame={(id) => navigate(`/game/${id}`)}
       onSwitchUser={() => navigate('/profile')}
+      onBestenliste={() => navigate('/bestenliste')}
     />
   );
 }

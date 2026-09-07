@@ -180,8 +180,16 @@ export function gruenNaechstesFeld(blatt: Blatt, reihe: 'oben' | 'unten'): numbe
   return felder.findIndex((wert) => wert === null);
 }
 
-export const gruenErlaubt = (blatt: Blatt, reihe: 'oben' | 'unten') =>
-  gruenNaechstesFeld(blatt, reihe) !== -1;
+/**
+ * Jedes grüne Feld wird von unten nach oben gefüllt: erst das untere Dreieck
+ * (das den Bonus bringt), danach erst das obere, das das Feld vervollständigt
+ * und Punkte gibt. Beide Reihen laufen dabei von links nach rechts.
+ */
+export function gruenErlaubt(blatt: Blatt, reihe: 'oben' | 'unten'): boolean {
+  const feld = gruenNaechstesFeld(blatt, reihe);
+  if (feld === -1) return false;
+  return reihe === 'unten' || blatt.gruenUnten[feld] !== null;
+}
 
 // ------------------------------------------------------------------ Pink
 

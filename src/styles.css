@@ -1390,3 +1390,90 @@ h3 {
   background: transparent;
   border: 2px dashed var(--border);
 }
+
+/* Die beiden Diagonalen im blauen Feld */
+.diagonale {
+  stroke: var(--muted);
+  stroke-width: 1;
+  stroke-dasharray: 2.5 2;
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.diagonale-voll {
+  stroke: var(--correct);
+  stroke-dasharray: none;
+  opacity: 1;
+}
+
+.diagonal-hinweis {
+  fill: var(--muted);
+  font-size: 6.5px;
+  font-weight: 600;
+}
+
+/* ---------- Bestenliste ---------- */
+
+.launch-knoepfe {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bestenliste {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 1rem calc(1rem + env(safe-area-inset-bottom));
+}
+
+.besten-block h3 {
+  margin: 1rem 0 0.5rem;
+  font-size: 0.95rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.besten-plaetze {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.platz {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.platz-erster {
+  border-color: var(--present);
+}
+
+.platz-nummer {
+  width: 1.2rem;
+  text-align: center;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.platz-name {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.platz-name .muted {
+  font-size: 0.78rem;
+}
+
+.platz-krone {
+  font-size: 1.1rem;
+}

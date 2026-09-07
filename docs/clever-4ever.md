@@ -27,7 +27,7 @@ Rundenboni (nur Runden 1–4), werden zu Beginn der Runde vergeben:
 
 | Runde | 1 | 2 | 3 | 4 | 5 | 6 |
 | --- | --- | --- | --- | --- | --- | --- |
-| Bonus | Neuwurf | +1 | weißer Würfel | schwarzes ? | – | – |
+| Bonus | Neuwurf | +1 | Silber polieren | schwarzes ? | – | – |
 
 Der weiße Würfel ist Joker für Gelb, Grau, Grün und Pink – **nicht** für Blau.
 Für Blau wird er als Spaltenangabe gebraucht.
@@ -52,12 +52,12 @@ Feld füllen, kein Überspringen.
 6×6-Gitter. Der **blaue Würfel bestimmt die Zeile**, der **weiße die Spalte**
 (nicht addieren). Kreuz am Schnittpunkt.
 
-- **Zeilenbonus** bei genau 2 Kreuzen in einer Zeile; ebenso für 2 Kreuze auf
-  der Diagonale oben links → unten rechts.
+- **Zeilenbonus** bei genau 2 Kreuzen in einer Zeile.
 - **Zeilenboni:** Zeile 1 grünes ?, 2 lila ?, 3 gelbes ?, 4 „+1", 5 oranges ?,
-  Zeile 6 keiner.
+  Zeile 6 **Fuchs**.
 - **Spaltenwertung** ab 2 Kreuzen: 7 / 8 / 9 / 10 / 11 / 12.
-- **Diagonale** oben rechts → unten links ab 2 Kreuzen: 6 Punkte.
+- **Hauptdiagonale** oben links → unten rechts ab 2 Kreuzen: **Neuwurf**.
+- **Nebendiagonale** oben rechts → unten links ab 2 Kreuzen: **6 Punkte**.
 
 ### Grau (orange gerahmt) – Teilflächen abkreuzen
 
@@ -87,8 +87,10 @@ Wer alle Felder einer Färbung abkreuzt, bekommt den passenden Fuchs.
 
 ### Grün – Würfelwert eintragen
 
-Felder mit oberem und unterem Dreieck; beim Eintragen entscheidet man sich für
-oben oder unten. Beide „Reihen" werden von links gefüllt, kein Überspringen.
+Felder mit oberem und unterem Dreieck. Jedes Feld wird **von unten nach oben**
+gefüllt: erst das untere Dreieck – das den Bonus bringt – und erst danach das
+obere, das das Feld vervollständigt. Beide Reihen laufen von links nach rechts,
+kein Überspringen.
 
 - Sind **beide Dreiecke** eines Feldes gefüllt, wird die Summe ins Punktfeld
   darüber geschrieben. **Ab Feld 4 zählt diese Summe doppelt** (8 x2-Felder).
@@ -146,19 +148,19 @@ Summe der fünf Bereiche, dazu Füchse × schwächster Bereich.
 
 Alle Angaben sind in `src/games/clever/sheet.ts` hinterlegt.
 
-**Gelb** – obere Reihe: –, weißer Würfel, oranges ?, grünes ?, **Fuchs**.
+**Gelb** – obere Reihe: –, Silber polieren, oranges ?, grünes ?, **Fuchs**.
 Mittlere Reihe: Neuwurf, lila ?, blaues ?, +1, gelbes ?. Untere Reihe: keine.
 
-**Grün** (unter den unteren Dreiecken, Feld 1–11): Neuwurf, blaues ?, weißer
-Würfel, gelbes ?, oranges ?, +1, lila ?, blaues ?, gelbes ?, **Fuchs**, +1.
+**Grün** (unter den unteren Dreiecken, Feld 1–11): Neuwurf, blaues ?, Silber
+polieren, gelbes ?, oranges ?, +1, lila ?, blaues ?, gelbes ?, **Fuchs**, +1.
 
-**Pink** (greift nur bei 5 oder 6, Feld 1–12): weißer Würfel, –, grünes ?, +1,
+**Pink** (greift nur bei 5 oder 6, Feld 1–12): Silber polieren, –, grünes ?, +1,
 Neuwurf, –, oranges ?, **Fuchs**, –, blaues ?, –, gelbes ?.
 
-**Grau** (Zeile,Spalte jeweils 0-basiert): 0,0 weißer Würfel · 0,5 grünes ? ·
-0,12 weißer Würfel · 1,7 Neuwurf · 1,15 grünes ? · 2,3 lila ? · 2,5 weißer
-Würfel · 2,9 weißer Würfel · 2,13 blaues ? · 3,0 Neuwurf · 3,7 +1 ·
-3,11 gelbes ? · 3,14 weißer Würfel.
+**Grau** (Zeile,Spalte jeweils 0-basiert): 0,0 Silber polieren · 0,5 grünes ? ·
+0,12 Silber polieren · 1,7 Neuwurf · 1,15 grünes ? · 2,3 lila ? · 2,5 Silber
+polieren · 2,9 Silber polieren · 2,13 blaues ? · 3,0 Neuwurf · 3,7 +1 ·
+3,11 gelbes ? · 3,14 Silber polieren.
 
 Orange steht dabei für den grauen Bereich, lila für den pinken – so sind die
 Bonussymbole auf dem Blatt eingefärbt.
@@ -216,6 +218,7 @@ Weiter geklärt:
 - **Blaue Hauptdiagonale** (oben links → unten rechts): zwei Kreuze geben einen
   **Neuwurf**, nicht wie zunächst angenommen einen Fuchs.
 - **Blaue Nebendiagonale** (oben rechts → unten links): 6 Punkte am Ende.
+  Beide Diagonalen sind im Blatt als gepunktete Linie mit Zähler markiert.
 - **Blau Zeile 6** trägt als Zeilenbonus den **Fuchs**.
 
 Offen bleibt nur noch der Bonus am Ende der Neuwurf-Leiste (lila ?), der noch

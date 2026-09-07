@@ -4,6 +4,7 @@ import { login } from './routes/login';
 import { readSession, logout } from './routes/session';
 import { listUsers, createUser, deleteUser } from './routes/users';
 import { readSave, writeSave } from './routes/saves';
+import { readScores } from './routes/scores';
 
 /**
  * Einstiegspunkt des Workers.
@@ -18,6 +19,7 @@ const ROUTES: Record<string, Record<string, Handler>> = {
   '/api/session': { GET: readSession, DELETE: logout },
   '/api/users': { GET: listUsers, POST: createUser, DELETE: deleteUser },
   '/api/saves': { GET: readSave, PUT: writeSave },
+  '/api/scores': { GET: readScores },
 };
 
 /** Erreichbar ohne gültiges Cookie: der Login selbst und die Sitzungsabfrage. */

@@ -55,6 +55,18 @@ export const api = {
       `/api/saves?user=${encodeURIComponent(userId)}`,
     ),
 
+  /** Alle Profile mit allen Spielständen – Grundlage der Bestenliste. */
+  loadScores: () =>
+    request<{
+      spieler: {
+        id: string;
+        name: string;
+        avatar: string;
+        color: string;
+        staende: Record<string, unknown>;
+      }[];
+    }>('/api/scores'),
+
   putSave: (userId: string, gameId: string, state: unknown) =>
     request<{ ok: true; updatedAt: string }>('/api/saves', {
       method: 'PUT',

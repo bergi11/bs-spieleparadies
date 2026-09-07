@@ -150,7 +150,12 @@ export function BlauAnsicht({ blatt, ziele, onZiel }: Props) {
   const oben = 14;
   const rechts = 16;
   const breite = links + 6 * Z + rechts;
-  const hoehe = oben + 6 * Z + 14;
+  const hoehe = oben + 6 * Z + 26;
+
+  // Zwei Kreuze auf einer Diagonale bringen etwas: oben links → unten rechts
+  // einen Neuwurf, oben rechts → unten links am Ende 6 Punkte.
+  const haupt = blatt.blau.filter((zeile, r) => zeile[r]).length;
+  const neben = blatt.blau.filter((zeile, r) => zeile[5 - r]).length;
 
   const zielFuer = (r: number, c: number) =>
     ziele.find(
@@ -185,6 +190,23 @@ export function BlauAnsicht({ blatt, ziele, onZiel }: Props) {
           {n}
         </text>
       ))}
+
+      {/* Die beiden Diagonalen als dünne Linien, damit man sieht, welche
+          Felder überhaupt dazuzählen. */}
+      <line
+        x1={links + 1}
+        y1={oben + 1}
+        x2={links + 6 * Z - 1}
+        y2={oben + 6 * Z - 1}
+        className={`diagonale${haupt >= 2 ? ' diagonale-voll' : ''}`}
+      />
+      <line
+        x1={links + 6 * Z - 1}
+        y1={oben + 1}
+        x2={links + 1}
+        y2={oben + 6 * Z - 1}
+        className={`diagonale${neben >= 2 ? ' diagonale-voll' : ''}`}
+      />
 
       {blatt.blau.map((reihe, r) =>
         reihe.map((gekreuzt, c) => {
@@ -237,6 +259,26 @@ export function BlauAnsicht({ blatt, ziele, onZiel }: Props) {
           {wert}
         </text>
       ))}
+
+      {/* Was die Diagonalen bringen – ab zwei Kreuzen. */}
+      <text
+        x={links + 1.5 * Z}
+        y={oben + 6 * Z + 19}
+        className={`diagonal-hinweis${haupt >= 2 ? ' spaltenwert-voll' : ''}`}
+        textAnchor="middle"
+        dominantBaseline="central"
+      >
+        ↘ ↻ {haupt}/2
+      </text>
+      <text
+        x={links + 4.5 * Z}
+        y={oben + 6 * Z + 19}
+        className={`diagonal-hinweis${neben >= 2 ? ' spaltenwert-voll' : ''}`}
+        textAnchor="middle"
+        dominantBaseline="central"
+      >
+        ↙ 6 P. {neben}/2
+      </text>
     </svg>
   );
 }

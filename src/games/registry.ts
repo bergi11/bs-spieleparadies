@@ -18,6 +18,11 @@ export interface GameDefinition {
   component: ComponentType<GameProps>;
   /** Kurzer Fortschrittstext für die Kachel im Launchpad. */
   summary?: (state: unknown) => string | null;
+  /**
+   * Wert für die Bestenliste – höher ist besser. `null`, wenn noch nichts
+   * zu werten ist. `text` steht in der Liste, `wert` bestimmt die Reihenfolge.
+   */
+  bestwert?: (state: unknown) => { wert: number; text: string } | null;
 }
 
 /**
@@ -38,6 +43,12 @@ export const GAMES: GameDefinition[] = [
       const { played = 0, streak = 0 } = s.stats;
       return `${played} gespielt · Serie ${streak}`;
     },
+    bestwert: (state) => {
+      const s = state as { stats?: { won?: number; maxStreak?: number } } | null;
+      if (!s?.stats?.won) return null;
+      const { won = 0, maxStreak = 0 } = s.stats;
+      return { wert: won, text: `${won} gelöst · beste Serie ${maxStreak}` };
+    },
   },
   {
     id: 'wordpuzzle',
@@ -52,6 +63,11 @@ export const GAMES: GameDefinition[] = [
       const bonus = s.bonusTotal ?? 0;
       return bonus ? `Level ${s.level} · ✦ ${bonus}` : `Level ${s.level}`;
     },
+    bestwert: (state) => {
+      const s = state as { solved?: number; bonusTotal?: number } | null;
+      if (!s?.solved) return null;
+      return { wert: s.solved, text: `${s.solved} Level · ✦ ${s.bonusTotal ?? 0}` };
+    },
   },
   {
     id: 'clever',
@@ -65,6 +81,11 @@ export const GAMES: GameDefinition[] = [
       if (s?.laufend) return 'Partie läuft';
       if (!s?.partien) return null;
       return `${s.partien} Partien · beste ${s.beste ?? 0}`;
+    },
+    bestwert: (state) => {
+      const s = state as { beste?: number; partien?: number } | null;
+      if (!s?.partien) return null;
+      return { wert: s.beste ?? 0, text: `${s.beste ?? 0} Punkte · ${s.partien} Partien` };
     },
   },
 ];

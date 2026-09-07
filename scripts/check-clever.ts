@@ -11,6 +11,7 @@ import {
   GRAU_GRUPPEN,
   eintragen,
   gelbErlaubt,
+  gruenErlaubt,
   grauVerfuegbar,
   leeresBlatt,
   punkteBlau,
@@ -115,6 +116,26 @@ function pruefe(name: string, ist: unknown, soll: unknown) {
   const b = leeresBlatt();
   b.pink = [2, 4, 6, 1, 1, 1, 1, 1, null, null, null, null];
   pruefe('Pink: Beispiel aus der Anleitung', punktePink(b), 32);
+}
+
+// -------------------------------------------------------------- Grün: Reihenfolge
+
+{
+  // Erst das untere Dreieck, dann das obere – Feld für Feld.
+  const b = leeresBlatt();
+  pruefe('Grün: unten ist offen', gruenErlaubt(b, 'unten'), true);
+  pruefe('Grün: oben noch gesperrt', gruenErlaubt(b, 'oben'), false);
+
+  b.gruenUnten[0] = 4;
+  pruefe('Grün: nach unten ist oben frei', gruenErlaubt(b, 'oben'), true);
+
+  b.gruenOben[0] = 3;
+  // Feld 1 ist voll, Feld 2 hat unten noch nichts – oben also wieder gesperrt.
+  pruefe('Grün: oben wartet aufs nächste untere', gruenErlaubt(b, 'oben'), false);
+  pruefe('Grün: unten geht weiter', gruenErlaubt(b, 'unten'), true);
+
+  b.gruenUnten[1] = 2;
+  pruefe('Grün: und wieder frei', gruenErlaubt(b, 'oben'), true);
 }
 
 // ------------------------------------------------------- Blaue Sonderfälle

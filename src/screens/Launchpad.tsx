@@ -6,9 +6,10 @@ interface Props {
   user: User;
   onOpenGame: (id: string) => void;
   onSwitchUser: () => void;
+  onBestenliste: () => void;
 }
 
-export function Launchpad({ user, onOpenGame, onSwitchUser }: Props) {
+export function Launchpad({ user, onOpenGame, onSwitchUser, onBestenliste }: Props) {
   const [saves, setSaves] = useState<Record<string, { state: unknown }>>({});
 
   // Die Kacheln zeigen den Fortschritt des aktuellen Profils. Klappt das
@@ -33,11 +34,16 @@ export function Launchpad({ user, onOpenGame, onSwitchUser }: Props) {
           <p className="muted">Willkommen zurück</p>
           <h1>{user.name}</h1>
         </div>
-        <button className="avatar-button" onClick={onSwitchUser} aria-label="Profil wechseln">
+        <div className="launch-knoepfe">
+          <button className="icon-button" onClick={onBestenliste} aria-label="Bestenliste">
+            🏆
+          </button>
+          <button className="avatar-button" onClick={onSwitchUser} aria-label="Profil wechseln">
           <span className="profile-avatar" style={{ background: user.color }}>
             {user.avatar}
-          </span>
-        </button>
+            </span>
+          </button>
+        </div>
       </header>
 
       <div className="tiles">
