@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ApiError, api, type User } from './lib/api';
 import { useHashRoute } from './lib/useHashRoute';
+import { useTastatur } from './lib/useTastatur';
 import { LoginScreen } from './screens/LoginScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { Launchpad } from './screens/Launchpad';
@@ -16,6 +17,8 @@ export function App() {
   const [users, setUsers] = useState<User[] | null>(null);
   const [userId, setUserId] = useState<string | null>(() => localStorage.getItem(LAST_USER_KEY));
   const { route, navigate, back } = useHashRoute();
+
+  useTastatur();
 
   useEffect(() => {
     api
