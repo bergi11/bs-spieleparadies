@@ -1751,3 +1751,78 @@ h3 {
     animation: none;
   }
 }
+
+/* Füchse unter der Rundenanzeige */
+.fuchs-leiste {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.fuchs {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+  /* Noch nicht geholt: nur der Umriss in der Bereichsfarbe. */
+  border: 2px solid var(--rand, var(--border));
+  background: transparent;
+}
+
+.fuchs-bild {
+  opacity: 0.35;
+  filter: grayscale(1);
+}
+
+/* Grau hat drei Füchse – einen je Färbung. Ohne eigenen Ring wären die drei
+   Plätze nicht auseinanderzuhalten; der Ring nimmt die Färbung vom Blatt auf,
+   nur aufgehellt, damit auch das dunkelste Grau vor dem Hintergrund steht. */
+.fuchs-schatten-W {
+  --rand: #9a9ab5;
+}
+.fuchs-schatten-H {
+  --rand: #6b6b8c;
+}
+.fuchs-schatten-D {
+  --rand: #45455e;
+}
+
+.fuchs-da {
+  background: var(--rand, var(--border));
+}
+
+.fuchs-da .fuchs-bild {
+  opacity: 1;
+  filter: none;
+}
+
+.fuchs-zahl {
+  margin-left: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+/* Würfelgruppen in der passiven Phase */
+.wuerfel-gruppen {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.wuerfel-gruppe {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.wuerfel-gruppe .wuerfel-reihe {
+  min-height: 0;
+}

@@ -316,6 +316,63 @@ function strukturKopie(blatt: Blatt): Blatt {
   };
 }
 
+// ----------------------------------------------------------------- Füchse
+
+export interface FuchsQuelle {
+  bereich: Bereich;
+  /** Nur bei Grau: für welche Färbung dieser Fuchs steht. */
+  schattierung?: 'W' | 'H' | 'D';
+  erreicht: boolean;
+}
+
+/**
+ * Woher es Füchse gibt und welche davon schon geholt sind.
+ *
+ * Bewusst aus dem Blatt abgeleitet statt separat mitgezählt: `blatt.fuechse`
+ * und die Anzeige können so nicht auseinanderlaufen. Welche Felder einen Fuchs
+ * tragen, steht in `sheet.ts` – hier wird nur gesucht.
+ */
+export function fuchsQuellen(blatt: Blatt): FuchsQuelle[] {
+  const quellen: FuchsQuelle[] = [];
+
+  GELB_BONI.forEach((reihe, r) =>
+    reihe.forEach((bonus, c) => {
+      if (bonus?.art === 'fuchs') quellen.push({ bereich: 'gelb', erreicht: blatt.gelb[r][c] !== null });
+    }),
+  );
+
+  // Zeilenbonus in Blau greift ab zwei Kreuzen.
+  BLAU_BONI.forEach((bonus, r) => {
+    if (bonus?.art === 'fuchs') {
+      quellen.push({ bereich: 'blau', erreicht: blatt.blau[r].filter(Boolean).length >= 2 });
+    }
+  });
+
+  // In Grau gibt es je Färbung einen, wenn alle ihre Felder abgekreuzt sind.
+  for (const farbe of ['W', 'H', 'D'] as const) {
+    quellen.push({
+      bereich: 'grau',
+      schattierung: farbe,
+      erreicht: GRAU_RASTER.every((zeile, r) => zeile.every((f, c) => f !== farbe || blatt.grau[r][c])),
+    });
+  }
+
+  GRUEN_BONI.forEach((bonus, i) => {
+    if (bonus?.art === 'fuchs') {
+      quellen.push({ bereich: 'gruen', erreicht: blatt.gruenUnten[i] !== null });
+    }
+  });
+
+  // In Pink greifen Feldboni nur bei einer 5 oder 6.
+  PINK_BONI.forEach((bonus, i) => {
+    if (bonus?.art === 'fuchs') {
+      quellen.push({ bereich: 'pink', erreicht: (blatt.pink[i] ?? 0) >= 5 });
+    }
+  });
+
+  return quellen;
+}
+
 // --------------------------------------------------------------- Wertung
 
 export function punkteGelb(blatt: Blatt): number {

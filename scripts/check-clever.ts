@@ -10,6 +10,7 @@
 import {
   GRAU_GRUPPEN,
   eintragen,
+  fuchsQuellen,
   gelbErlaubt,
   gruenErlaubt,
   grauVerfuegbar,
@@ -364,6 +365,43 @@ const farben = (w: { farbe: string }[]) => w.map((x) => x.farbe);
   pruefe('Rundenwechsel: nach der letzten ist Schluss', naechsteRunde(letzte, festeWuerfel([1])).phase, 'spielende');
 }
 
+// ------------------------------------------------------------------ Füchse
+
+{
+  const leer = leeresBlatt();
+  const quellen = fuchsQuellen(leer);
+  pruefe('Füchse: sieben Quellen', quellen.length, 7);
+  pruefe('Füchse: am Anfang keiner geholt', quellen.filter((q) => q.erreicht).length, 0);
+  pruefe(
+    'Füchse: drei davon in Grau',
+    quellen.filter((q) => q.bereich === 'grau').length,
+    3,
+  );
+
+  // Der Fuchs in Pink hängt am Feldbonus – der greift nur bei 5 oder 6.
+  const vier = eintragen(leer, { bereich: 'pink', wert: 4 }).blatt;
+  const bisFeld8 = (blatt: Blatt, wert: number) => {
+    let b = blatt;
+    while (b.pink.findIndex((w) => w === null) < 7 && b.pink.some((w) => w === null)) {
+      b = eintragen(b, { bereich: 'pink', wert: 1 }).blatt;
+    }
+    return eintragen(b, { bereich: 'pink', wert }).blatt;
+  };
+  const mitVier = bisFeld8(vier, 4);
+  pruefe(
+    'Füchse: Pink mit 4 gibt keinen',
+    fuchsQuellen(mitVier).find((q) => q.bereich === 'pink')!.erreicht,
+    false,
+  );
+  const mitSechs = bisFeld8(vier, 6);
+  pruefe(
+    'Füchse: Pink mit 6 gibt einen',
+    fuchsQuellen(mitSechs).find((q) => q.bereich === 'pink')!.erreicht,
+    true,
+  );
+  pruefe('Füchse: Zähler stimmt mit Ableitung', fuchsQuellen(mitSechs).filter((q) => q.erreicht).length, mitSechs.fuechse);
+}
+
 // ----------------------------------------------------------- Mögliche Ziele
 
 {
@@ -493,6 +531,15 @@ function gesaetsterZufall(saat: number): Rng {
 
     stand = naechsteRunde(stand, rng);
   }
+
+  // Die Anzeige leitet die Füchse aus dem Blatt ab, gewertet wird der
+  // mitgezählte Wert. Beides muss übereinstimmen, sonst zeigt das Spiel etwas
+  // anderes an, als es rechnet.
+  pruefe(
+    'Ganzes Spiel: abgeleitete Füchse passen zum Zähler',
+    fuchsQuellen(blatt).filter((q) => q.erreicht).length,
+    blatt.fuechse,
+  );
 
   pruefe('Ganzes Spiel: endet nach sechs Runden', stand.phase, 'spielende');
   pruefe('Ganzes Spiel: höchstens 4 Einträge pro Runde', eintraege <= RUNDEN * 4, true);

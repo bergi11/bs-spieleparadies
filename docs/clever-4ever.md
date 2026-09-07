@@ -198,7 +198,9 @@ wo er gerade liegt. `weisserWert(stand)` sucht ihn deshalb über alle Ablagen.
 Würfelablauf mit festen Würfelfolgen und einen vollständigen Sechs-Runden-
 Durchlauf.
 
-Noch nicht gebaut: Einlösen der Boni und Aktionen sowie die Oberfläche.
+`fuchsQuellen(blatt)` leitet die sieben Fuchsquellen aus den Blattdaten ab –
+Gelb, Blau, je eine pro grauer Färbung, Grün und Pink – statt sie zu zählen.
+So bleibt die Anzeige an den Daten hängen und nicht an einem Zähler.
 
 ## Nachträglich geklärt
 
@@ -230,14 +232,27 @@ Alle vier Schritte sind umgesetzt; das Spiel ist durchspielbar.
 
 Die Oberfläche zeigt einen Bereich zur Zeit (`Clever.tsx`, Ansichten in
 `bereiche.tsx`). Ein Würfel wird angetippt, dann leuchten in der unteren Leiste
-die Bereiche auf, in denen er verwendbar ist; gibt es nur ein Ziel, wird sofort
-eingetragen. Weil immer nur ein Bereich sichtbar ist, springt die Ansicht
-automatisch dorthin, wo die Ziele liegen – sonst wären Bonusziele in einer
-anderen Farbe unerreichbar.
+die Bereiche auf, in denen er verwendbar ist. Das Feld wird immer angetippt,
+auch wenn nur eines in Frage kommt: Beim Spielen ist sonst nicht klar, was
+gerade passiert ist. Weil immer nur ein Bereich sichtbar ist, springt die
+Ansicht automatisch dorthin, wo die Ziele liegen – sonst wären Bonusziele in
+einer anderen Farbe unerreichbar.
 
 Boni laufen über eine Warteschlange, weil ein Bonus den nächsten auslösen kann.
 Beim Einlesen wird sie aufgeräumt: Aktionsboni gehören auf ihre Leiste, nicht
-in die Abfrage, sonst stünde dort eine Auswahl ohne wählbare Zahl.
+in die Abfrage, sonst stünde dort eine Auswahl ohne wählbare Zahl. Ein offener
+Bonus verdeckt die Würfelbühne, damit er vor dem nächsten Wurf eingelöst wird
+und nicht dahinter verschwindet.
+
+Über der Bühne steht die Fuchsleiste: sieben Plätze in den Bereichsfarben, noch
+offene als Umriss. Grau hat drei davon, je einen pro Färbung – ihre Ringe
+nehmen die Färbung vom Blatt auf, sonst wären die drei nicht auseinander-
+zuhalten.
+
+In der passiven Phase liegen alle sechs Würfel offen, getrennt nach
+Silbertablett und aktivem Spieler. Die Würfel des aktiven Spielers sind blass,
+solange das Tablett etwas hergibt – sie zu verstecken hätte den Eindruck
+erweckt, es lägen nur drei Würfel im Spiel.
 
 Zurücknehmen geht einen Schritt weit. Der Wurf danach wird mitgespeichert –
 wählt man denselben Würfel erneut, kommen dieselben Würfel wieder, sonst ließe
@@ -261,10 +276,6 @@ umgekehrt).
 - Der Bonus am Ende der Neuwurf-Leiste (lila ?) wird nicht vergeben.
 - Polieren ist etwas großzügiger als die Anleitung: dort geht es vor allem um
   Tablettwürfel, hier lässt sich jeder gerade wählbare Würfel verändern.
-
-Der Spielstand gehört wie bei den anderen Spielen über
-`useGameSave(user.id, 'clever', …)` in die Datenbank, und das Spiel braucht
-einen Eintrag in `src/games/registry.ts`.
 
 ## Wenn etwas nachgemessen werden muss
 

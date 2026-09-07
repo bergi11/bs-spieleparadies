@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GameProps } from '../registry';
 import { useGameSave } from '../../lib/useGameSave';
 import { ANSICHTEN } from './bereiche';
-import { eintragen, leeresBlatt, werten, type Blatt, type Wertung } from './logic';
+import { eintragen, fuchsQuellen, leeresBlatt, werten, type Blatt, type Wertung } from './logic';
 import { BEREICHE, BEREICH_NAME, RUNDEN, RUNDEN_BONI, type Bereich, type Bonus } from './sheet';
 import {
   moeglicheZiele,
@@ -237,6 +237,16 @@ export function Clever({ user, onExit }: GameProps) {
 
   // ---------------------------------------------------------- Würfelwahl
 
+  /**
+   * In der passiven Phase liegen zwar alle sechs Würfel offen, genommen werden
+   * darf aber nur vom Tablett – und nur wenn dort gar nichts passt, von den
+   * Würfeln des aktiven Spielers.
+   */
+  const darfWaehlen = (w: Wuerfel): boolean => {
+    if (!laufend || laufend.stand.phase !== 'passiv' || extraModus) return true;
+    return passivWaehlbar(laufend.stand, laufend.blatt).includes(w);
+  };
+
   const wuerfelAntippen = (index: number) => {
     if (!laufend) return;
     const w = (extraModus ? alleWuerfel(laufend.stand) : waehlbareWuerfel(laufend))[index];
@@ -246,15 +256,15 @@ export function Clever({ user, onExit }: GameProps) {
       zeige('Dieser Würfel passt nirgendwo.');
       return;
     }
-
-    setGewaehlt(index);
-
-    // Gibt es nur ein Ziel, wird sofort eingetragen.
-    if (moeglich.length === 1) {
-      setBereich(moeglich[0].bereich);
-      zielGewaehltMit(index, moeglich[0]);
+    if (!darfWaehlen(w)) {
+      zeige('Erst vom Silbertablett nehmen.');
       return;
     }
+
+    // Auch bei nur einem möglichen Ziel wird nicht sofort eingetragen: beim
+    // Spielen ist sonst nicht nachvollziehbar, wo der Würfel gelandet ist.
+    // Der Zug wird immer im Blatt bestätigt.
+    setGewaehlt(index);
     setBereich(moeglich[0].bereich);
   };
 
@@ -419,6 +429,28 @@ export function Clever({ user, onExit }: GameProps) {
   const phaseFertig = stand.phase === 'aktiv' && stand.offen.length === 0;
   const Ansicht = ANSICHTEN[bereich];
 
+  /** Ein Würfel zum Antippen. Blass, wenn er nirgends passt oder gesperrt ist. */
+  const wuerfelKnopf = (w: Wuerfel, i: number) => {
+    const nutzbar = moeglicheZiele(blatt, w, weiss).length > 0 && darfWaehlen(w);
+    return (
+      <button
+        key={`${wurfNr}-${w.farbe}-${i}`}
+        className={[
+          'wuerfel',
+          'wuerfel-neu',
+          `wuerfel-${w.farbe}`,
+          gewaehlt === i ? 'wuerfel-gewaehlt' : '',
+          nutzbar ? '' : 'wuerfel-blass',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        onClick={() => wuerfelAntippen(i)}
+      >
+        {w.wert}
+      </button>
+    );
+  };
+
   if (stand.phase === 'spielende') {
     return <Ende blatt={blatt} onFertig={() => beenden(blatt)} onExit={onExit} />;
   }
@@ -427,6 +459,8 @@ export function Clever({ user, onExit }: GameProps) {
     <div className="game">
       <Kopf runde={stand.runde} phase={stand.phase} wurf={stand.wurf} onExit={onExit} />
 
+      <FuchsLeiste blatt={blatt} />
+
       {meldung && <div className="toast">{meldung}</div>}
 
       <div className="clever-buehne">
@@ -434,7 +468,10 @@ export function Clever({ user, onExit }: GameProps) {
           <Ansicht blatt={blatt} ziele={ziele} onZiel={zielGewaehlt} />
         </div>
 
-        {wurfPhase !== 'fertig' && (
+        {/* Offene Boni kommen vor dem nächsten Wurf. Läge die Bühne davor,
+            müsste man erst würfeln und danach den Bonus einlösen – das ist
+            genau verkehrt herum und verwirrt beim Spielen. */}
+        {wurfPhase !== 'fertig' && !bonus && (
           <WurfBuehne wuerfel={buehnenWuerfel} phase={wurfPhase} onWuerfeln={wuerfeln} />
         )}
       </div>
@@ -490,55 +527,63 @@ export function Clever({ user, onExit }: GameProps) {
             <div className="bonus-hinweis">Silber polieren: einen Würfel um 1 verändern.</div>
           )}
 
-          <div className="wuerfel-reihe">
-            {/* Solange die Bühne läuft, bleiben die Werte verdeckt – sonst
-                stünde das Ergebnis schon unten, bevor gewürfelt wurde. */}
-            {wurfPhase !== 'fertig'
-              ? buehnenWuerfel.map((_, i) => <span key={i} className="wuerfel wuerfel-verdeckt" />)
-              : polierModus
-              ? waehlbar.map((w, i) => (
-                  <div className="polier-paar" key={`${w.farbe}-${i}`}>
-                    <span className={`wuerfel wuerfel-${w.farbe}`}>{w.wert}</span>
-                    <div className="polier-knoepfe">
-                      <button
-                        className="polier"
-                        disabled={!polierbar(w, -1)}
-                        onClick={() => polierEinsetzen(w.farbe, -1)}
-                      >
-                        −
-                      </button>
-                      <button
-                        className="polier"
-                        disabled={!polierbar(w, 1)}
-                        onClick={() => polierEinsetzen(w.farbe, 1)}
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-                ))
-              : waehlbar.map((w, i) => {
-                  const nutzbar = moeglicheZiele(blatt, w, weiss).length > 0;
-                  return (
+          {/* Solange die Bühne läuft, bleiben die Werte verdeckt – sonst
+              stünde das Ergebnis schon unten, bevor gewürfelt wurde. */}
+          {wurfPhase !== 'fertig' ? (
+            <div className="wuerfel-reihe">
+              {buehnenWuerfel.map((_, i) => (
+                <span key={i} className="wuerfel wuerfel-verdeckt" />
+              ))}
+            </div>
+          ) : polierModus ? (
+            <div className="wuerfel-reihe">
+              {waehlbar.map((w, i) => (
+                <div className="polier-paar" key={`${w.farbe}-${i}`}>
+                  <span className={`wuerfel wuerfel-${w.farbe}`}>{w.wert}</span>
+                  <div className="polier-knoepfe">
                     <button
-                      key={`${wurfNr}-${w.farbe}-${i}`}
-                      className={[
-                        'wuerfel',
-                        'wuerfel-neu',
-                        `wuerfel-${w.farbe}`,
-                        gewaehlt === i ? 'wuerfel-gewaehlt' : '',
-                        nutzbar ? '' : 'wuerfel-blass',
-                      ]
-                        .filter(Boolean)
-                        .join(' ')}
-                      onClick={() => wuerfelAntippen(i)}
+                      className="polier"
+                      disabled={!polierbar(w, -1)}
+                      onClick={() => polierEinsetzen(w.farbe, -1)}
                     >
-                      {w.wert}
+                      −
                     </button>
-                  );
-                })}
-            {waehlbar.length === 0 && <span className="muted">Keine Würfel übrig.</span>}
-          </div>
+                    <button
+                      className="polier"
+                      disabled={!polierbar(w, 1)}
+                      onClick={() => polierEinsetzen(w.farbe, 1)}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : stand.phase === 'passiv' ? (
+            // Beide Gruppen zeigen, damit klar ist was ausliegt und woher man
+            // nehmen darf.
+            <div className="wuerfel-gruppen">
+              <div className="wuerfel-gruppe">
+                <span className="tisch-name">Silbertablett</span>
+                <div className="wuerfel-reihe">
+                  {waehlbar.slice(0, stand.tablett.length).map((w, i) => wuerfelKnopf(w, i))}
+                </div>
+              </div>
+              <div className="wuerfel-gruppe">
+                <span className="tisch-name">Aktiver Spieler</span>
+                <div className="wuerfel-reihe">
+                  {waehlbar
+                    .slice(stand.tablett.length)
+                    .map((w, i) => wuerfelKnopf(w, stand.tablett.length + i))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="wuerfel-reihe">
+              {waehlbar.map((w, i) => wuerfelKnopf(w, i))}
+              {waehlbar.length === 0 && <span className="muted">Keine Würfel übrig.</span>}
+            </div>
+          )}
 
           <div className="clever-knoepfe">
             {polierModus && (
@@ -606,9 +651,16 @@ export function Clever({ user, onExit }: GameProps) {
   );
 }
 
-/** In der aktiven Phase die geworfenen, in der passiven die vom Tablett. */
+/**
+ * Die angezeigten Würfel. In der passiven Phase sind das **alle sechs** –
+ * erst das Tablett, dann die drei beim gedachten aktiven Spieler. Sonst wäre
+ * nicht zu sehen, was überhaupt ausliegt; welche davon genommen werden dürfen,
+ * entscheidet `passivWaehlbar`.
+ */
 function waehlbareWuerfel(l: Laufend): Wuerfel[] {
-  return l.stand.phase === 'passiv' ? passivWaehlbar(l.stand, l.blatt) : l.stand.offen;
+  return l.stand.phase === 'passiv'
+    ? [...l.stand.tablett, ...l.stand.passivFelder]
+    : l.stand.offen;
 }
 
 /** Lesbarer Name eines Bonus für Hinweise. */
@@ -696,13 +748,47 @@ function Kopf({
 }
 
 /**
+ * Die Füchse. Jeder zählt am Ende so viel wie der schwächste Bereich, deshalb
+ * lohnt sich der Blick darauf während der Partie. Noch offene Füchse stehen als
+ * Umriss in der Farbe ihres Bereichs da – so sieht man, wo noch etwas zu holen
+ * ist.
+ */
+function FuchsLeiste({ blatt }: { blatt: Blatt }) {
+  const quellen = fuchsQuellen(blatt);
+  const geholt = quellen.filter((q) => q.erreicht).length;
+
+  return (
+    <div className="fuchs-leiste">
+      {quellen.map((q, i) => (
+        <span
+          key={i}
+          className={`fuchs bereich-${q.bereich}${
+            q.schattierung ? ` fuchs-schatten-${q.schattierung}` : ''
+          }${q.erreicht ? ' fuchs-da' : ''}`}
+          title={`${BEREICH_NAME[q.bereich]}${q.schattierung ? ` (${q.schattierung})` : ''}`}
+        >
+          {/* Das Symbol trägt die Ausgrauung, nicht der Kreis – sonst würde
+              der farbige Umriss mit entfärbt. */}
+          <span className="fuchs-bild">🦊</span>
+        </span>
+      ))}
+      <span className="fuchs-zahl">
+        {geholt}/{quellen.length}
+      </span>
+    </div>
+  );
+}
+
+/**
  * Würfelfelder und Tablett. Beides gehört zum Spielstand: die Felder zeigen,
  * wie viele Würfe noch kommen, und in der passiven Phase wird vom Tablett
  * gewählt.
  */
 function Tisch({ stand, verdeckt }: { stand: Zugstand; verdeckt: boolean }) {
   const felder = [0, 1, 2].map((i) => stand.felder[i]);
-  const tablett = stand.phase === 'passiv' ? stand.passivFelder : stand.tablett;
+  // In der passiven Phase stehen Tablett und fremde Würfel schon in der
+  // Würfelzeile – hier bliebe nur eine Dopplung.
+  const tablett = stand.phase === 'passiv' ? [] : stand.tablett;
 
   return (
     <div className="tisch">
@@ -725,8 +811,9 @@ function Tisch({ stand, verdeckt }: { stand: Zugstand; verdeckt: boolean }) {
         </div>
       </div>
 
+      {stand.phase !== 'passiv' && (
       <div className="tisch-teil">
-        <span className="tisch-name">{stand.phase === 'passiv' ? 'Genommen' : 'Tablett'}</span>
+        <span className="tisch-name">Tablett</span>
         <div className="tisch-wuerfel">
           {tablett.length === 0 && <span className="mini mini-frei" />}
           {/* Während des Wurfs verdeckt: das Tablett gehört bei der passiven
@@ -742,6 +829,7 @@ function Tisch({ stand, verdeckt }: { stand: Zugstand; verdeckt: boolean }) {
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }
