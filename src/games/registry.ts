@@ -7,6 +7,7 @@ import { Hangman } from './hangman/Hangman';
 import { Intersections } from './intersections/Intersections';
 import { Skyscrapers } from './skyscrapers/Skyscrapers';
 import { Nonogram } from './nonogram/Nonogram';
+import { Bridges } from './bridges/Bridges';
 
 export interface GameProps {
   user: User;
@@ -164,6 +165,26 @@ export const GAMES: GameDefinition[] = [
       if (!s?.bild) return null;
       const geloest = s.stats?.geloest ?? 0;
       return geloest ? `Bild ${s.bild} · ${geloest} gelöst` : `Bild ${s.bild}`;
+    },
+    bestwert: (state) => {
+      const s = state as { stats?: { geloest?: number; makellos?: number } } | null;
+      if (!s?.stats?.geloest) return null;
+      const { geloest = 0, makellos = 0 } = s.stats;
+      return { wert: geloest, text: `${geloest} gelöst · ${makellos} ohne Tipp` };
+    },
+  },
+  {
+    id: 'bridges',
+    title: 'Brücken',
+    tagline: 'Inseln zu einem Netz verbinden',
+    icon: '🌉',
+    accent: '#2a9d8f',
+    component: Bridges,
+    summary: (state) => {
+      const s = state as { raetsel?: number; stats?: { geloest?: number } } | null;
+      if (!s?.raetsel) return null;
+      const geloest = s.stats?.geloest ?? 0;
+      return geloest ? `Rätsel ${s.raetsel} · ${geloest} gelöst` : `Rätsel ${s.raetsel}`;
     },
     bestwert: (state) => {
       const s = state as { stats?: { geloest?: number; makellos?: number } } | null;

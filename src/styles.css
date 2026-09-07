@@ -2352,3 +2352,99 @@ h3 {
     font-size: 0.85rem;
   }
 }
+
+/* ---------- Brücken ---------- */
+
+.insel-brett {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem;
+}
+
+/* Die Karte kommt als SVG: So bleiben Inseln und Brücken bei jeder Bildbreite
+   an ihrem Platz, ohne dass irgendwo Pixel gerechnet werden.
+   `touch-action: none`, weil das Ziehen von Insel zu Insel sonst die Seite
+   scrollt. */
+.insel-karte {
+  width: min(100%, 26rem);
+  aspect-ratio: 1;
+  max-height: 100%;
+  touch-action: none;
+}
+
+/* Wohin die gewählte Insel noch könnte. Gestrichelt, damit es niemand für
+   eine schon gelegte Brücke hält. */
+.insel-vorschlag {
+  stroke: var(--accent);
+  stroke-width: 0.04;
+  stroke-dasharray: 0.12 0.12;
+  opacity: 0.65;
+}
+
+.insel-bruecke line {
+  stroke: var(--text);
+  stroke-width: 0.07;
+  stroke-linecap: round;
+}
+
+/* Brücken aus einem Tipp bleiben sichtbar anders – sonst sähe die gelöste
+   Karte am Ende aus, als hätte man alles selbst gefunden. */
+.insel-bruecke-verraten line {
+  stroke: var(--present);
+}
+
+/* Unsichtbares Ziel für den Daumen. Der gezeichnete Kreis wäre dafür zu klein,
+   und zwischen zwei Inseln liegt immer mindestens ein freies Feld. */
+.insel-griff {
+  fill: transparent;
+}
+
+.insel-rund {
+  fill: var(--surface-2);
+  stroke: var(--border);
+  stroke-width: 0.05;
+}
+
+.insel-zahl {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 0.42px;
+  font-weight: 700;
+}
+
+.insel-fertig .insel-rund {
+  fill: rgba(42, 157, 143, 0.28);
+  stroke: var(--correct);
+}
+
+.insel-zuviel .insel-rund {
+  fill: rgba(255, 93, 143, 0.18);
+  stroke: var(--danger);
+}
+
+.insel-gewaehlt .insel-rund {
+  stroke: var(--accent);
+  stroke-width: 0.1;
+}
+
+.insel-fuss {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+}
+
+.insel-fuss .button {
+  min-width: 9rem;
+}
+
+.insel-fuss .hint,
+.insel-fuss .error {
+  margin: 0;
+  text-align: center;
+  max-width: 26rem;
+}
