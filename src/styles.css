@@ -1880,3 +1880,169 @@ h3 {
 .wuerfel-gruppe .wuerfel-reihe {
   min-height: 0;
 }
+
+/* ---------- Schnittpunkte ---------- */
+
+.kreuz-brett {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem;
+  overflow: auto;
+}
+
+/* Erste Spalte fest, damit die Zeilenbeschriftung nicht mit den Feldern um den
+   Platz streitet; die Felder teilen sich den Rest zu gleichen Teilen. */
+.kreuz-gitter {
+  display: grid;
+  grid-template-columns: 4.4rem repeat(4, minmax(0, 1fr));
+  /* Die Zeilen teilen sich die freie Höhe; unter 3.4rem gehen sie nicht,
+     dann scrollt lieber das Brett. */
+  grid-template-rows: auto repeat(4, minmax(3.4rem, 1fr));
+  gap: 0.3rem;
+  width: 100%;
+  max-width: 34rem;
+  height: 100%;
+  max-height: 24rem;
+}
+
+.kreuz-kopf {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 0.2rem 0.1rem;
+  font-size: 0.62rem;
+  line-height: 1.15;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.kreuz-kopf-zeile {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.kreuz-feld {
+  display: grid;
+  place-items: center;
+  padding: 0.25rem 0.15rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 1.1rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.kreuz-feld:disabled {
+  cursor: default;
+}
+
+.kreuz-feld-voll {
+  background: rgba(61, 220, 151, 0.16);
+  border-color: var(--correct);
+  color: var(--text);
+}
+
+/* Verratene Felder bleiben sichtbar anders – sonst sähe das gelöste Gitter am
+   Ende aus, als hätte man alles selbst gefunden. */
+.kreuz-feld-verraten {
+  background: rgba(255, 183, 3, 0.14);
+  border-color: var(--present);
+  color: var(--text);
+}
+
+.kreuz-feld-offen {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Lange Wörter wie SCHNEEGLÖCKCHEN müssen in der Zelle bleiben: erst trennen,
+   sonst hart umbrechen. */
+.kreuz-wort {
+  /* Ohne diese beiden Zeilen wird das Wort so breit, wie es will: als
+     Rasterelement hat es von Haus aus die Mindestbreite seines längsten
+     Wortes, und die schlägt jede Höchstbreite. */
+  min-width: 0;
+  max-width: 100%;
+  font-weight: 700;
+  line-height: 1.05;
+  hyphens: auto;
+  overflow-wrap: break-word;
+}
+
+.kreuz-wort-kurz {
+  font-size: 0.74rem;
+}
+
+.kreuz-wort-mittel {
+  font-size: 0.64rem;
+}
+
+.kreuz-wort-lang {
+  font-size: 0.54rem;
+}
+
+.kreuz-wort-winzig {
+  font-size: 0.46rem;
+}
+
+.kreuz-fuss {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+}
+
+.kreuz-fuss .button {
+  min-width: 9rem;
+}
+
+.kreuz-fuss .hint {
+  margin: 0;
+  text-align: center;
+}
+
+.kreuz-frage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  text-align: center;
+  font-size: 1.05rem;
+}
+
+.kreuz-mal {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.kreuz-eingabe {
+  width: 100%;
+  margin-top: 0.75rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+@media (max-width: 380px) {
+  .kreuz-gitter {
+    grid-template-columns: 3.9rem repeat(4, minmax(0, 1fr));
+    gap: 0.22rem;
+  }
+
+  .kreuz-kopf {
+    font-size: 0.58rem;
+  }
+}
