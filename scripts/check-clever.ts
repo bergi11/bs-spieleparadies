@@ -343,6 +343,9 @@ const farben = (w: { farbe: string }[]) => w.map((x) => x.farbe);
   pruefe('Passiv: Phase gewechselt', stand.phase, 'passiv');
   pruefe('Passiv: drei niedrige aufs Tablett', werte(stand.tablett), [1, 2, 3]);
   pruefe('Passiv: drei hohe auf den Feldern', werte(stand.passivFelder), [4, 5, 6]);
+  // Die Phase endet nicht mit dem genommenen Würfel – danach darf noch ein
+  // Extrawürfel kommen, deshalb startet sie ausdrücklich als "nicht fertig".
+  pruefe('Passiv: startet unfertig', stand.passivFertig, false);
 }
 
 {

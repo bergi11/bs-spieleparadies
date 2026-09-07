@@ -58,6 +58,12 @@ export interface Zugstand {
    * genommen hätte. Nur wählbar, wenn vom Tablett nichts geht.
    */
   passivFelder: Wuerfel[];
+  /**
+   * Passive Phase: der Würfel ist genommen. Die Runde endet trotzdem nicht von
+   * selbst – Aktionen wie der Extrawürfel dürfen danach noch eingesetzt
+   * werden, und dafür müssen die Würfel der Runde liegen bleiben.
+   */
+  passivFertig?: boolean;
 }
 
 export function neueRunde(runde: number, rng: Rng): Zugstand {
@@ -205,6 +211,7 @@ export function startePassiv(stand: Zugstand, rng: Rng): Zugstand {
     tablett: sortiert.slice(0, 3),
     passivFelder: sortiert.slice(3),
     felder: stand.felder,
+    passivFertig: false,
   };
 }
 

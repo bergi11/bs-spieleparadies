@@ -94,6 +94,11 @@ export function Clever({ user, onExit }: GameProps) {
   const [wurfPhase, setWurfPhase] = useState<'bereit' | 'rollt' | 'landet' | 'fertig'>('fertig');
   const [joker, setJoker] = useState<string[] | null>(null);
   const uhren = useRef<ReturnType<typeof setTimeout>[]>([]);
+  /** Wischen wechselt den Bereich. Beides als Ref: React ist dafür zu langsam. */
+  const wischStart = useRef<{ x: number; y: number } | null>(null);
+  const gewischt = useRef(false);
+  /** Zuletzt angesprungene Ziele – daran hängt, ob die Ansicht springen muss. */
+  const letzteZiele = useRef<Ziel[]>([]);
 
   useEffect(() => () => uhren.current.forEach(clearTimeout), []);
 
@@ -208,6 +213,10 @@ export function Clever({ user, onExit }: GameProps) {
    */
   useEffect(() => {
     if (ziele.length === 0) return;
+    // Nur bei einer neuen Auswahl springen. Sonst zöge es die Ansicht sofort
+    // wieder zurück, wenn man mit einem gewählten Würfel woanders hinwischt.
+    if (ziele === letzteZiele.current) return;
+    letzteZiele.current = ziele;
     if (ziele.some((z) => z.bereich === bereich)) return;
     setBereich(ziele[0].bereich);
   }, [ziele, bereich]);
@@ -244,6 +253,9 @@ export function Clever({ user, onExit }: GameProps) {
    */
   const darfWaehlen = (w: Wuerfel): boolean => {
     if (!laufend || laufend.stand.phase !== 'passiv' || extraModus) return true;
+    // Der eine Würfel ist genommen – die übrigen liegen nur noch für den
+    // Extrawürfel da und dürfen nicht ein zweites Mal eingetragen werden.
+    if (laufend.stand.passivFertig) return false;
     return passivWaehlbar(laufend.stand, laufend.blatt).includes(w);
   };
 
@@ -257,7 +269,11 @@ export function Clever({ user, onExit }: GameProps) {
       return;
     }
     if (!darfWaehlen(w)) {
-      zeige('Erst vom Silbertablett nehmen.');
+      zeige(
+        laufend.stand.passivFertig
+          ? 'Würfel schon genommen – noch möglich ist ein Extrawürfel.'
+          : 'Erst vom Silbertablett nehmen.',
+      );
       return;
     }
 
@@ -276,9 +292,13 @@ export function Clever({ user, onExit }: GameProps) {
     meldeNeueBoni(laufend, zwischen);
 
     // Ein Extrawürfel hängt nur am Zug dran: er verbraucht kein Würfelfeld und
-    // dreht den Wurf nicht weiter.
+    // dreht den Wurf nicht weiter. Erst hier wird er abgebucht.
     if (extraModus) {
-      persist((v) => ({ ...v, laufend: zwischen }));
+      const aktionen = {
+        ...zwischen.aktionen,
+        extra: { ...zwischen.aktionen.extra, benutzt: zwischen.aktionen.extra.benutzt + 1 },
+      };
+      persist((v) => ({ ...v, laufend: { ...zwischen, aktionen } }));
       setExtraModus(false);
       setGewaehlt(null);
       return;
@@ -289,13 +309,29 @@ export function Clever({ user, onExit }: GameProps) {
       const stand = wiederholt ? zurueck.nachher : nachWahl(laufend.stand, index, wuerfel);
       persist((v) => ({ ...v, laufend: { ...zwischen, stand } }));
       setZurueck({ vorher, index, nachher: stand });
+      gewuerfelt();
     } else {
-      const nach = { ...zwischen, stand: naechsteRunde(laufend.stand, wuerfel) };
-      persist((v) => ({ ...v, laufend: rundenBonusAnhaengen(nach, laufend.stand.runde) }));
+      // Die passive Phase endet nicht mit dem genommenen Würfel: danach lässt
+      // sich noch ein Extrawürfel einsetzen. Weitergedreht wird erst auf Tipp.
+      persist((v) => ({
+        ...v,
+        laufend: { ...zwischen, stand: { ...laufend.stand, passivFertig: true } },
+      }));
       setZurueck(null);
     }
-    gewuerfelt();
     setGewaehlt(null);
+  };
+
+  /** Passive Phase abschließen und die nächste Runde starten. */
+  const rundeBeenden = () => {
+    if (!laufend) return;
+    const nach = { ...laufend, stand: naechsteRunde(laufend.stand, wuerfel) };
+    persist((v) => ({ ...v, laufend: rundenBonusAnhaengen(nach, laufend.stand.runde) }));
+    setZurueck(null);
+    setGewaehlt(null);
+    setExtraModus(false);
+    setPolierModus(false);
+    gewuerfelt();
   };
 
   /**
@@ -372,11 +408,8 @@ export function Clever({ user, onExit }: GameProps) {
     if (!laufend) return;
     // Ein zusätzlicher Würfel am Zugende. Gewählt wird einer der sechs Würfel
     // dieser Runde mit seinem gewürfelten Wert, nicht eine freie Zahl.
-    const aktionen = {
-      ...laufend.aktionen,
-      extra: { ...laufend.aktionen.extra, benutzt: laufend.aktionen.extra.benutzt + 1 },
-    };
-    persist((v) => ({ ...v, laufend: { ...laufend, aktionen } }));
+    // Abgebucht wird erst beim Eintragen: wer abbricht, behält den Joker.
+    setPolierModus(false);
     setExtraModus(true);
     setGewaehlt(null);
     zeige(`Extrawürfel: einen der sechs Würfel dieser Runde wählen.`);
@@ -464,7 +497,32 @@ export function Clever({ user, onExit }: GameProps) {
       {meldung && <div className="toast">{meldung}</div>}
 
       <div className="clever-buehne">
-        <div className="clever-blatt">
+        <div
+          className="clever-blatt"
+          onPointerDown={(e) => {
+            wischStart.current = { x: e.clientX, y: e.clientY };
+            gewischt.current = false;
+          }}
+          onPointerUp={(e) => {
+            const start = wischStart.current;
+            wischStart.current = null;
+            if (!start) return;
+            const dx = e.clientX - start.x;
+            const dy = e.clientY - start.y;
+            // Deutlich waagerecht und weit genug – sonst war es ein Tipp oder
+            // ein Scrollversuch.
+            if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+            gewischt.current = true;
+            const i = BEREICHE.indexOf(bereich);
+            setBereich(BEREICHE[(i + (dx < 0 ? 1 : -1) + BEREICHE.length) % BEREICHE.length]);
+          }}
+          // Der Tipp am Ende eines Wischers darf kein Feld auslösen.
+          onClickCapture={(e) => {
+            if (!gewischt.current) return;
+            gewischt.current = false;
+            e.stopPropagation();
+          }}
+        >
           <Ansicht blatt={blatt} ziele={ziele} onZiel={zielGewaehlt} />
         </div>
 
@@ -507,7 +565,9 @@ export function Clever({ user, onExit }: GameProps) {
         />
       ) : (
         <div className="clever-zug">
-          {wurfPhase === 'fertig' && (
+          {/* Während ein Modus läuft, bleibt die Leiste weg: sonst startet man
+              versehentlich die nächste Aktion, während die erste offen ist. */}
+          {wurfPhase === 'fertig' && !extraModus && !polierModus && (
           <AktionsLeiste
             aktionen={aktionen}
             phase={stand.phase}
@@ -516,6 +576,7 @@ export function Clever({ user, onExit }: GameProps) {
             onNeuwurf={neuwurfEinsetzen}
             onExtra={extraEinsetzen}
             onPolieren={() => {
+              setExtraModus(false);
               setPolierModus(true);
               setGewaehlt(null);
             }}
@@ -563,7 +624,7 @@ export function Clever({ user, onExit }: GameProps) {
                 </div>
               ))}
             </div>
-          ) : stand.phase === 'passiv' ? (
+          ) : stand.phase === 'passiv' && !extraModus ? (
             // Beide Gruppen zeigen, damit klar ist was ausliegt und woher man
             // nehmen darf.
             <div className="wuerfel-gruppen">
@@ -603,6 +664,17 @@ export function Clever({ user, onExit }: GameProps) {
             {!extraModus && zurueck && (
               <button className="button button-ghost" onClick={zurueckNehmen}>
                 Zurücknehmen
+              </button>
+            )}
+            {/* Die passive Phase wird von Hand beendet – vorher darf noch ein
+                Extrawürfel kommen. Ohne genommenen Würfel ist derselbe Knopf
+                der Ausweg, wenn nichts passt. */}
+            {stand.phase === 'passiv' && !extraModus && !polierModus && (
+              <button
+                className={stand.passivFertig ? 'button' : 'button button-ghost'}
+                onClick={rundeBeenden}
+              >
+                {stand.passivFertig ? 'Runde beenden' : 'Verzichten'}
               </button>
             )}
             {stand.phase === 'aktiv' && !phaseFertig && (

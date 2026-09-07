@@ -260,6 +260,22 @@ Silbertablett und aktivem Spieler. Die Würfel des aktiven Spielers sind blass,
 solange das Tablett etwas hergibt – sie zu verstecken hätte den Eindruck
 erweckt, es lägen nur drei Würfel im Spiel.
 
+Die Phase endet nicht mit dem genommenen Würfel, sondern erst auf Tipp
+(`passivFertig` im Zugstand, `Runde beenden`). Danach lässt sich noch ein
+Extrawürfel einsetzen, und dafür müssen die Würfel der Runde liegen bleiben.
+Solange nichts genommen ist, heißt derselbe Knopf `Verzichten` – ohne ihn
+säße man fest, wenn kein Würfel passt.
+
+Aktionen buchen erst beim Einsetzen ab, nicht beim Aufrufen: wer den
+Extrawürfel abbricht, behält ihn. Solange ein Modus läuft, verschwindet die
+Aktionsleiste, damit sich Extrawürfel und Polieren nicht überlagern.
+
+Zwischen den Bereichen wird gewischt (waagerecht, ab 45 px). Ein Wischer, der
+auf einem Feld endet, trägt nichts ein – der folgende Klick wird in der
+Capture-Phase abgefangen. Die Ansicht springt nur bei einer *neuen* Auswahl zu
+den Zielen, sonst zöge es einen sofort zurück, wenn man mit gewähltem Würfel
+woanders hinschaut.
+
 Zurücknehmen geht einen Schritt weit. Der Wurf danach wird mitgespeichert –
 wählt man denselben Würfel erneut, kommen dieselben Würfel wieder, sonst ließe
 sich durch Zurücknehmen ein besserer Wurf erschleichen.
