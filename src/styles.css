@@ -2448,3 +2448,149 @@ h3 {
   text-align: center;
   max-width: 26rem;
 }
+
+/* ---------- Kreuzchen ---------- */
+
+.kreuzchen-brett {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.6rem;
+}
+
+/* Schmaler als die anderen Gitter: Darunter steht noch die Frage und die
+   ganze Tastatur. */
+.kreuzchen-gitter {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 3px;
+  width: min(100%, 19rem);
+  aspect-ratio: 1;
+  max-height: 100%;
+}
+
+.kreuzchen-feld {
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: var(--surface-2);
+  border-radius: 6px;
+  font-family: inherit;
+  color: var(--text);
+}
+
+.kreuzchen-feld:disabled {
+  cursor: default;
+}
+
+/* Auf dunklem Grund ist das schwarze Feld das dunkelste: Es liegt auf der
+   Seitenfarbe und sieht damit aus wie ein Loch im Gitter. Mit einem eigenen
+   Grauton wäre es von einem leeren weißen Feld nicht zu unterscheiden. */
+.kreuzchen-feld-schwarz {
+  background: var(--bg);
+}
+
+/* Das ganze Wort steht mit, damit man sieht, woran man gerade schreibt. */
+.kreuzchen-feld-wort {
+  background: rgba(124, 92, 255, 0.14);
+}
+
+.kreuzchen-feld-gewaehlt {
+  background: rgba(124, 92, 255, 0.3);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* Verratene Buchstaben bleiben sichtbar anders – sonst sähe das gelöste
+   Gitter am Ende aus, als hätte man alles selbst gefunden. */
+.kreuzchen-feld-verraten .kreuzchen-buchstabe {
+  color: var(--present);
+}
+
+.kreuzchen-nr {
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  font-size: 0.55rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--muted);
+}
+
+.kreuzchen-buchstabe {
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.kreuzchen-frage {
+  display: flex;
+  align-items: stretch;
+  gap: 0.4rem;
+  padding: 0 0.6rem;
+}
+
+.kreuzchen-frage .icon-button {
+  flex: 0 0 auto;
+  font-size: 1.5rem;
+}
+
+/* Die Frage ist zugleich der Weg zur Liste aller Fragen – ein eigener Knopf
+   dafür wäre auf dem Handy nur eine weitere Reihe. */
+.kreuzchen-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.15rem;
+  text-align: left;
+  min-height: 3rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 0.95rem;
+}
+
+.kreuzchen-marke {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.kreuzchen-meldung {
+  margin: 0.4rem 0.9rem 0;
+  text-align: center;
+}
+
+.kreuzchen-liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.kreuzchen-liste button {
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem 0.4rem;
+  border-radius: 8px;
+  font-size: 0.92rem;
+}
+
+.kreuzchen-liste strong {
+  display: inline-block;
+  min-width: 1.4rem;
+  color: var(--muted);
+}
+
+.kreuzchen-fertig {
+  color: var(--muted);
+  text-decoration: line-through;
+}

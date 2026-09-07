@@ -11,6 +11,7 @@
     "check:skyscrapers": "rolldown scripts/check-skyscrapers.ts -o node_modules/.tmp-check-sky.mjs -f esm -p node && node node_modules/.tmp-check-sky.mjs",
     "check:nonograms": "rolldown scripts/check-nonograms.ts -o node_modules/.tmp-check-nono.mjs -f esm -p node && node node_modules/.tmp-check-nono.mjs",
     "check:bridges": "rolldown scripts/check-bridges.ts -o node_modules/.tmp-check-bruecken.mjs -f esm -p node && node node_modules/.tmp-check-bruecken.mjs",
+    "check:crossword": "rolldown scripts/check-crossword.ts -o node_modules/.tmp-check-kreuz.mjs -f esm -p node && node node_modules/.tmp-check-kreuz.mjs",
     "build": "npm run typecheck && vite build",
     "preview": "wrangler dev",
     "db:local": "wrangler d1 execute bs-spieleparadies --local --file=./schema.sql",
@@ -22,6 +23,7 @@
     "puzzles:skyscrapers": "node scripts/build-skyscrapers.mjs",
     "puzzles:nonograms": "node scripts/build-nonograms.mjs",
     "puzzles:bridges": "node scripts/build-bridges.mjs",
+    "puzzles:crossword": "node scripts/build-crossword.mjs",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {

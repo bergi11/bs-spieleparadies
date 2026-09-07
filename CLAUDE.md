@@ -114,6 +114,8 @@ veröffentlichte Seite gehören zu `wrangler secret put` – niemals unter
   - Wolkenkratzer – Höhen 1..n, Sichthinweise am Rand, 4x4 bis 6x6.
   - Bildgitter – Nonogramm, Bilder von Hand gezeichnet, 5x5 bis 10x10.
   - Brücken – Hashiwokakero, Inseln zu einem Netz verbinden, 7x7 und 9x9.
+  - Kreuzchen – Mini-Kreuzworträtsel 5x5. Wörter und Hinweise stehen von Hand
+    im Erzeugerskript; die Gitter sucht es sich daraus zusammen.
 
   Die drei Logikspiele folgen demselben Muster: Der Erzeuger nimmt nur Rätsel
   auf, die ein Solver ohne Raten löst. Derselbe Solver steht im Regelkern des
@@ -123,13 +125,15 @@ veröffentlichte Seite gehören zu `wrangler secret put` – niemals unter
   Einzelne Regelkerne werden stattdessen mit einem einfachen Prüfskript
   abgesichert, das Node direkt ausführt – siehe `npm run check:clever`,
   `npm run check:intersections`, `npm run check:skyscrapers`,
-  `npm run check:nonograms` und `npm run check:bridges`.
+  `npm run check:nonograms`, `npm run check:bridges` und
+  `npm run check:crossword`.
 - Die JSON-Dateien unter `src/games/*/` sind erzeugt, nicht handgepflegt:
   `npm run words` für Wörtchen, `npm run words:puzzle` für die Level von
   Wortsalat, `npm run words:hangman` für die Rätselwörter des Galgenmännchens,
   `npm run words:intersections` für Wortlisten, Regeln und Rätsel der
   Schnittpunkte, `npm run puzzles:skyscrapers` für die Rätsel der Wolkenkratzer,
   `npm run puzzles:nonograms` für die Bilder des Bildgitters – die Zeichnungen
-  selbst stehen im Skript – und `npm run puzzles:bridges` für die Inselkarten.
+  selbst stehen im Skript – und `npm run puzzles:bridges` für die Inselkarten,
+  `npm run puzzles:crossword` für die Kreuzwortgitter.
   Nie direkt bearbeiten – Änderungen gehören ins jeweilige Skript unter
   `scripts/`.
