@@ -1477,3 +1477,277 @@ h3 {
 .platz-krone {
   font-size: 1.1rem;
 }
+
+/* ---------- Galgenmännchen ---------- */
+
+.hangman-board {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 0.75rem;
+}
+
+.hangman-gallows {
+  width: min(100%, 17rem);
+  max-height: 100%;
+}
+
+.galgen-strich {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 3;
+  stroke-linecap: round;
+  /* pathLength="1" im Markup macht die Länge jedes Teils gleich, egal wie
+     lang der Strich wirklich ist – so zeichnet sich alles gleich schnell. */
+  stroke-dasharray: 1;
+  animation: galgen-zeichnen 0.55s ease-out backwards;
+}
+
+@keyframes galgen-zeichnen {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Der Galgen steht zurück, das Männchen ist die Hauptsache. */
+.balken {
+  stroke: var(--muted);
+}
+
+.strick {
+  stroke: var(--present);
+}
+
+/* Was noch nicht verdient ist, steht blass schon da: die Fläche bleibt
+   ruhig, und man sieht, wie viel Galgen noch fehlt. */
+.galgen-schatten {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0.07;
+}
+
+/* Drehpunkt ist die obere Mitte der Figur – genau dort, wo der Strick am
+   Querbalken hängt. Über die Zeichenfläche gerechnet wäre der Punkt vom
+   Zustand der Zeichnung abhängig, deshalb `fill-box`. */
+.hangman-figur {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+}
+
+.hangman-figur-tot {
+  animation: hangman-haengen 2.4s cubic-bezier(0.3, 0, 0.3, 1) 0.45s backwards;
+}
+
+@keyframes hangman-haengen {
+  0% {
+    transform: translateY(-7px) rotate(0deg);
+  }
+  10% {
+    transform: translateY(0) rotate(0deg);
+  }
+  28% {
+    transform: rotate(11deg);
+  }
+  46% {
+    transform: rotate(-8deg);
+  }
+  64% {
+    transform: rotate(5deg);
+  }
+  82% {
+    transform: rotate(-3deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.hangman-gesicht {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  animation: hangman-auftauchen 0.4s ease 1.1s backwards;
+}
+
+@keyframes hangman-auftauchen {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Kurzes rotes Aufleuchten, wenn er fällt. */
+.hangman-board-dead::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 42%, rgb(255 93 143 / 0.28), transparent 62%);
+  animation: hangman-blitz 0.9s ease-out 0.45s both;
+}
+
+@keyframes hangman-blitz {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
+/* ---------- Gesuchtes Wort ---------- */
+
+.hangman-wort {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.5rem 0.6rem;
+}
+
+.hangman-feld {
+  width: clamp(1.35rem, 6.4vw, 2.1rem);
+  height: 2.1rem;
+  display: grid;
+  place-items: center;
+  font-size: clamp(1rem, 4.6vw, 1.4rem);
+  font-weight: 700;
+  border-bottom: 3px solid var(--border);
+}
+
+.hangman-feld-voll {
+  border-bottom-color: var(--correct);
+  animation: pop 0.18s ease;
+}
+
+/* Nach der Niederlage stehen die fehlenden Buchstaben da – man will wissen,
+   woran man gescheitert ist. */
+.hangman-feld-verpasst {
+  color: var(--danger);
+  border-bottom-color: var(--danger);
+}
+
+/* ---------- Fliegender Buchstabe ---------- */
+
+.hangman-flug {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 8;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  transform: translate(var(--zu-x), var(--zu-y)) translate(-50%, -50%);
+}
+
+@keyframes hangman-bahn {
+  from {
+    transform: translate(var(--von-x), var(--von-y)) translate(-50%, -50%);
+  }
+  to {
+    transform: translate(var(--zu-x), var(--zu-y)) translate(-50%, -50%);
+  }
+}
+
+/* Spannung: der Buchstabe springt auf die Bühne und zappelt dort, bevor
+   feststeht, ob er ins Wort darf. */
+.hangman-flug-laden {
+  animation: hangman-bahn 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+.hangman-flug-laden .hangman-flug-kern {
+  color: var(--accent);
+  animation: hangman-zappeln 0.62s ease-in-out both;
+}
+
+@keyframes hangman-zappeln {
+  0% {
+    transform: scale(0.9);
+  }
+  30% {
+    transform: scale(2.1) rotate(0deg);
+  }
+  45% {
+    transform: scale(1.9) rotate(-5deg);
+  }
+  60% {
+    transform: scale(2.15) rotate(5deg);
+  }
+  78% {
+    transform: scale(1.95) rotate(-4deg);
+  }
+  100% {
+    transform: scale(2.1) rotate(0deg);
+  }
+}
+
+/* Treffer: ab ins Feld. Mehrere Vorkommen fliegen nacheinander los. */
+.hangman-flug-treffer {
+  animation: hangman-bahn 0.38s cubic-bezier(0.5, -0.25, 0.75, 1) var(--verzug, 0ms) both;
+}
+
+.hangman-flug-treffer .hangman-flug-kern {
+  color: var(--correct);
+  animation: hangman-landen 0.38s ease-in var(--verzug, 0ms) both;
+}
+
+@keyframes hangman-landen {
+  from {
+    transform: scale(2.1);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* Fehlgriff: der Buchstabe kippt weg, während der neue Strich wächst. */
+.hangman-flug-daneben .hangman-flug-kern {
+  animation: hangman-verfehlt 0.56s ease-in both;
+}
+
+@keyframes hangman-verfehlt {
+  0% {
+    transform: scale(2.1);
+    color: var(--accent);
+    opacity: 1;
+  }
+  18% {
+    transform: scale(2.3) translateX(-9px);
+    color: var(--danger);
+  }
+  34% {
+    transform: scale(2.3) translateX(9px);
+  }
+  50% {
+    transform: scale(2.25) translateX(-6px);
+  }
+  66% {
+    transform: scale(2.2) translateX(3px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.6) translateY(26px);
+    color: var(--danger);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .galgen-strich,
+  .hangman-figur-tot,
+  .hangman-gesicht,
+  .hangman-board-dead::after,
+  .hangman-feld-voll {
+    animation: none;
+  }
+}

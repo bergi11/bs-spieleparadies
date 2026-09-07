@@ -3,6 +3,7 @@ import type { User } from '../lib/api';
 import { Wordle } from './wordle/Wordle';
 import { WordPuzzle } from './wordpuzzle/WordPuzzle';
 import { Clever } from './clever/Clever';
+import { Hangman } from './hangman/Hangman';
 
 export interface GameProps {
   user: User;
@@ -86,6 +87,26 @@ export const GAMES: GameDefinition[] = [
       const s = state as { beste?: number; partien?: number } | null;
       if (!s?.partien) return null;
       return { wert: s.beste ?? 0, text: `${s.beste ?? 0} Punkte · ${s.partien} Partien` };
+    },
+  },
+  {
+    id: 'hangman',
+    title: 'Galgenmännchen',
+    tagline: 'Buchstaben raten, Strich für Strich',
+    icon: '🪢',
+    accent: '#ff5d8f',
+    component: Hangman,
+    summary: (state) => {
+      const s = state as { stats?: { played?: number; streak?: number } } | null;
+      if (!s?.stats?.played) return null;
+      const { played = 0, streak = 0 } = s.stats;
+      return `${played} gespielt · Serie ${streak}`;
+    },
+    bestwert: (state) => {
+      const s = state as { stats?: { won?: number; maxStreak?: number } } | null;
+      if (!s?.stats?.won) return null;
+      const { won = 0, maxStreak = 0 } = s.stats;
+      return { wert: won, text: `${won} gerettet · beste Serie ${maxStreak}` };
     },
   },
 ];
