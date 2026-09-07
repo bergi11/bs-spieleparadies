@@ -108,11 +108,15 @@ veröffentlichte Seite gehören zu `wrangler secret put` – niemals unter
 - Fertig, aber noch wenig gespielt: Clever 4Ever (Würfelspiel, Solo-Variante).
   Regeln, Blattdaten und die getroffenen Annahmen: `docs/clever-4ever.md`.
   Dazu Galgenmännchen (klassisches Hangman, elf Fehlversuche).
+- Neu und noch ungespielt: Schnittpunkte (4x4-Gitter aus Kategorien und
+  Schreibweise-Eigenschaften, Lösungen tippt man selbst ein).
 - Es gibt **kein Testframework**. Wird eins gebraucht, vorher kurz abstimmen.
   Einzelne Regelkerne werden stattdessen mit einem einfachen Prüfskript
-  abgesichert, das Node direkt ausführt – siehe `npm run check:clever`.
+  abgesichert, das Node direkt ausführt – siehe `npm run check:clever` und
+  `npm run check:intersections`.
 - Die JSON-Dateien unter `src/games/*/` sind erzeugt, nicht handgepflegt:
   `npm run words` für Wörtchen, `npm run words:puzzle` für die Level von
-  Wortsalat, `npm run words:hangman` für die Rätselwörter des Galgenmännchens.
-  Nie direkt bearbeiten – Änderungen gehören ins jeweilige Skript
-  unter `scripts/`.
+  Wortsalat, `npm run words:hangman` für die Rätselwörter des Galgenmännchens,
+  `npm run words:intersections` für Wortlisten, Regeln und Rätsel der
+  Schnittpunkte. Nie direkt bearbeiten – Änderungen gehören ins jeweilige
+  Skript unter `scripts/`.

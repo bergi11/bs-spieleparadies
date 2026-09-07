@@ -4,6 +4,7 @@ import { Wordle } from './wordle/Wordle';
 import { WordPuzzle } from './wordpuzzle/WordPuzzle';
 import { Clever } from './clever/Clever';
 import { Hangman } from './hangman/Hangman';
+import { Intersections } from './intersections/Intersections';
 
 export interface GameProps {
   user: User;
@@ -107,6 +108,26 @@ export const GAMES: GameDefinition[] = [
       if (!s?.stats?.won) return null;
       const { won = 0, maxStreak = 0 } = s.stats;
       return { wert: won, text: `${won} gerettet · beste Serie ${maxStreak}` };
+    },
+  },
+  {
+    id: 'intersections',
+    title: 'Schnittpunkte',
+    tagline: 'Wörter für Zeile und Spalte finden',
+    icon: '✚',
+    accent: '#4cc9f0',
+    component: Intersections,
+    summary: (state) => {
+      const s = state as { raetsel?: number; stats?: { geloest?: number } } | null;
+      if (!s?.raetsel) return null;
+      const geloest = s.stats?.geloest ?? 0;
+      return geloest ? `Rätsel ${s.raetsel} · ${geloest} gelöst` : `Rätsel ${s.raetsel}`;
+    },
+    bestwert: (state) => {
+      const s = state as { stats?: { geloest?: number; makellos?: number } } | null;
+      if (!s?.stats?.geloest) return null;
+      const { geloest = 0, makellos = 0 } = s.stats;
+      return { wert: geloest, text: `${geloest} gelöst · ${makellos} ohne Tipp` };
     },
   },
 ];

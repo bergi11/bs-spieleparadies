@@ -157,3 +157,25 @@ Zwei Sperrlisten im Skript halten sauber, was die Häufigkeitsliste anspült:
 Vornamen und englische Wörter aus den Untertiteln, und getrennt davon
 Artikel, Pronomen und Hilfsverben. Letztere ergäben zwar gültige, aber öde
 Rätsel – als Bonuswort zählen sie weiterhin.
+
+### Schnittpunkte
+
+`npm run words:intersections` erzeugt `daten.json` – Wortlisten, Regeln und
+220 Rätsel in einer Datei. Anders als bei den anderen Spielen wandern die
+Listen mit ins Spiel: Die Lösungen sind nicht vorgegeben, man denkt sie sich
+selbst aus, also muss der Browser eine freie Eingabe beurteilen können.
+
+Ein Rätsel ist ein 4x4-Gitter. Die Zeilen sind Kategorien ("Tiere"), die
+Spalten Eigenschaften der Schreibweise ("beginnt mit S", "Doppelbuchstabe",
+"Farbe versteckt"). Gesucht ist je Feld ein Wort, das beides erfüllt.
+
+Die Kategorielisten stehen von Hand gepflegt im Skript. Automatisch beschaffte
+Listen wären länger, brächten aber Fachbegriffe und lateinische Namen mit –
+hier zählt, dass einem ein Wort beim Grübeln einfällt. Je länger die Listen,
+desto seltener wird eine gute Eingabe abgelehnt.
+
+Die Eigenschaften stehen als Daten in der JSON, nicht als Code: `{"art":
+"anfang", "wert": "S"}`. Ausgewertet werden sie zweimal – beim Erzeugen im
+Skript und im Spiel beim Prüfen einer Eingabe. `npm run check:intersections`
+hält beide Auswertungen zusammen und prüft außerdem, dass jedes Feld mindestens
+vier mögliche Wörter hat. Ein Feld mit nur einer Lösung wäre Raten statt Denken.
