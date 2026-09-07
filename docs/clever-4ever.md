@@ -270,6 +270,11 @@ Aktionen buchen erst beim Einsetzen ab, nicht beim Aufrufen: wer den
 Extrawürfel abbricht, behält ihn. Solange ein Modus läuft, verschwindet die
 Aktionsleiste, damit sich Extrawürfel und Polieren nicht überlagern.
 
+Eine laufende Partie lässt sich über `Aufgeben` in der Kopfzeile abbrechen.
+Der Stand wird dabei **verworfen und nicht gewertet** – `beste` und `partien`
+bleiben unverändert. Weil das eine halbe Stunde Spiel wegwirft, kommt vorher
+eine Rückfrage; der Knopf erscheint nur, solange wirklich eine Partie läuft.
+
 Zwischen den Bereichen wird gewischt (waagerecht, ab 45 px). Ein Wischer, der
 auf einem Feld endet, trägt nichts ein – der folgende Klick wird in der
 Capture-Phase abgefangen. Die Ansicht springt nur bei einer *neuen* Auswahl zu

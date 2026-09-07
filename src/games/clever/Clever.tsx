@@ -93,6 +93,7 @@ export function Clever({ user, onExit }: GameProps) {
    */
   const [wurfPhase, setWurfPhase] = useState<'bereit' | 'rollt' | 'landet' | 'fertig'>('fertig');
   const [joker, setJoker] = useState<string[] | null>(null);
+  const [fragtAufgeben, setFragtAufgeben] = useState(false);
   const uhren = useRef<ReturnType<typeof setTimeout>[]>([]);
   /** Wischen wechselt den Bereich. Beides als Ref: React ist dafür zu langsam. */
   const wischStart = useRef<{ x: number; y: number } | null>(null);
@@ -138,6 +139,21 @@ export function Clever({ user, onExit }: GameProps) {
     setZurueck(null);
     setExtraModus(false);
     gewuerfelt();
+  };
+
+  /**
+   * Partie aufgeben. Der Stand wird verworfen, nicht gewertet – `beste` und
+   * `partien` bleiben, wie sie waren.
+   */
+  const aufgeben = () => {
+    persist((v) => ({ ...v, laufend: null }));
+    setFragtAufgeben(false);
+    setGewaehlt(null);
+    setZurueck(null);
+    setExtraModus(false);
+    setPolierModus(false);
+    setBonusWert(null);
+    setBonusFarbe(null);
   };
 
   const beenden = (blatt: Blatt) => {
@@ -490,7 +506,13 @@ export function Clever({ user, onExit }: GameProps) {
 
   return (
     <div className="game">
-      <Kopf runde={stand.runde} phase={stand.phase} wurf={stand.wurf} onExit={onExit} />
+      <Kopf
+        runde={stand.runde}
+        phase={stand.phase}
+        wurf={stand.wurf}
+        onExit={onExit}
+        onAufgeben={() => setFragtAufgeben(true)}
+      />
 
       <FuchsLeiste blatt={blatt} />
 
@@ -722,6 +744,8 @@ export function Clever({ user, onExit }: GameProps) {
 
       {joker && <JokerPopup namen={joker} onSchliessen={() => setJoker(null)} />}
 
+      {fragtAufgeben && <AufgebenFrage onJa={aufgeben} onNein={() => setFragtAufgeben(false)} />}
+
       {status === 'fehler' && <div className="save-warning">Spielstand konnte nicht gespeichert werden.</div>}
     </div>
   );
@@ -798,14 +822,17 @@ function Kopf({
   phase,
   wurf,
   onExit,
+  onAufgeben,
 }: {
   runde: number | null;
   phase?: string;
   wurf?: number;
   onExit: () => void;
+  /** Nur gesetzt, solange eine Partie läuft. */
+  onAufgeben?: () => void;
 }) {
   return (
-    <header className="game-bar">
+    <header className="game-bar game-bar-clever">
       <button className="icon-button" onClick={onExit} aria-label="Zurück zum Launchpad">
         ←
       </button>
@@ -818,7 +845,13 @@ function Kopf({
           </span>
         )}
       </div>
-      <div style={{ width: '2.75rem' }} />
+      {onAufgeben ? (
+        <button className="kopf-aktion" onClick={onAufgeben}>
+          Aufgeben
+        </button>
+      ) : (
+        <div style={{ width: '2.75rem' }} />
+      )}
     </header>
   );
 }
@@ -952,6 +985,31 @@ function WurfBuehne({
 }
 
 /** Kurzer, deutlicher Hinweis auf einen freigeschalteten Joker. */
+/**
+ * Rückfrage vor dem Aufgeben. Eine laufende Partie ist schnell eine halbe
+ * Stunde Arbeit – die darf kein Fehltipp wegwerfen.
+ */
+function AufgebenFrage({ onJa, onNein }: { onJa: () => void; onNein: () => void }) {
+  return (
+    <div className="joker-hof" onClick={onNein}>
+      <div className="joker-karte frage-karte" onClick={(e) => e.stopPropagation()}>
+        <strong>Partie aufgeben?</strong>
+        <span className="muted">
+          Der aktuelle Stand wird verworfen und nicht gewertet.
+        </span>
+        <div className="clever-knoepfe">
+          <button className="button button-ghost" onClick={onNein}>
+            Weiterspielen
+          </button>
+          <button className="button button-warnung" onClick={onJa}>
+            Aufgeben
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function JokerPopup({ namen, onSchliessen }: { namen: string[]; onSchliessen: () => void }) {
   return (
     <div className="joker-hof" onClick={onSchliessen}>
