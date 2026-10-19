@@ -9,6 +9,7 @@ import { Skyscrapers } from './skyscrapers/Skyscrapers';
 import { Nonogram } from './nonogram/Nonogram';
 import { Bridges } from './bridges/Bridges';
 import { Crossword } from './crossword/Crossword';
+import { Blocks } from './blocks/Blocks';
 
 export interface GameProps {
   user: User;
@@ -212,6 +213,29 @@ export const GAMES: GameDefinition[] = [
       if (!s?.stats?.geloest) return null;
       const { geloest = 0, makellos = 0 } = s.stats;
       return { wert: geloest, text: `${geloest} gelöst · ${makellos} ohne Tipp` };
+    },
+  },
+  {
+    id: 'blocks',
+    title: 'Klötzchen',
+    tagline: 'Formen legen, Reihen räumen',
+    icon: '🧱',
+    accent: '#8ac926',
+    component: Blocks,
+    summary: (state) => {
+      const s = state as {
+        partie?: { vorbei?: boolean; punkte?: number } | null;
+        beste?: number;
+        partien?: number;
+      } | null;
+      if (s?.partie && !s.partie.vorbei) return `Partie läuft · ${s.partie.punkte ?? 0} Punkte`;
+      if (!s?.partien) return null;
+      return `${s.partien} Partien · beste ${s.beste ?? 0}`;
+    },
+    bestwert: (state) => {
+      const s = state as { beste?: number; partien?: number } | null;
+      if (!s?.partien) return null;
+      return { wert: s.beste ?? 0, text: `${s.beste ?? 0} Punkte · ${s.partien} Partien` };
     },
   },
 ];

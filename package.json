@@ -12,6 +12,7 @@
     "check:nonograms": "rolldown scripts/check-nonograms.ts -o node_modules/.tmp-check-nono.mjs -f esm -p node && node node_modules/.tmp-check-nono.mjs",
     "check:bridges": "rolldown scripts/check-bridges.ts -o node_modules/.tmp-check-bruecken.mjs -f esm -p node && node node_modules/.tmp-check-bruecken.mjs",
     "check:crossword": "rolldown scripts/check-crossword.ts -o node_modules/.tmp-check-kreuz.mjs -f esm -p node && node node_modules/.tmp-check-kreuz.mjs",
+    "check:blocks": "rolldown scripts/check-blocks.ts -o node_modules/.tmp-check-bloecke.mjs -f esm -p node && node node_modules/.tmp-check-bloecke.mjs",
     "build": "npm run typecheck && vite build",
     "preview": "wrangler dev",
     "db:local": "wrangler d1 execute bs-spieleparadies --local --file=./schema.sql",

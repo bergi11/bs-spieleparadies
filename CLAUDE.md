@@ -116,6 +116,10 @@ veröffentlichte Seite gehören zu `wrangler secret put` – niemals unter
   - Brücken – Hashiwokakero, Inseln zu einem Netz verbinden, 7x7 und 9x9.
   - Kreuzchen – Mini-Kreuzworträtsel 5x5. Wörter und Hinweise stehen von Hand
     im Erzeugerskript; die Gitter sucht es sich daraus zusammen.
+  - Klötzchen – Formen auf ein 8x8-Brett legen, volle Reihen und Spalten
+    räumen (nach dem Vorbild von Block Blast). Jede Form wird gleich
+    wahrscheinlich und ohne Blick aufs Brett gezogen; `npm run check:blocks`
+    zählt die Verteilung nach. Daran nichts "Hilfreiches" drehen.
 
   Die drei Logikspiele folgen demselben Muster: Der Erzeuger nimmt nur Rätsel
   auf, die ein Solver ohne Raten löst. Derselbe Solver steht im Regelkern des
@@ -125,8 +129,8 @@ veröffentlichte Seite gehören zu `wrangler secret put` – niemals unter
   Einzelne Regelkerne werden stattdessen mit einem einfachen Prüfskript
   abgesichert, das Node direkt ausführt – siehe `npm run check:clever`,
   `npm run check:intersections`, `npm run check:skyscrapers`,
-  `npm run check:nonograms`, `npm run check:bridges` und
-  `npm run check:crossword`.
+  `npm run check:nonograms`, `npm run check:bridges`,
+  `npm run check:crossword` und `npm run check:blocks`.
 - Die JSON-Dateien unter `src/games/*/` sind erzeugt, nicht handgepflegt:
   `npm run words` für Wörtchen, `npm run words:puzzle` für die Level von
   Wortsalat, `npm run words:hangman` für die Rätselwörter des Galgenmännchens,

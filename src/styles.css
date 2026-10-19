@@ -11,6 +11,14 @@
   --absent: #3a3a4d;
   --danger: #ff5d8f;
   --radius: 16px;
+  /* Die sieben Farben der Klötzchen. */
+  --klotz-1: #ff6b6b;
+  --klotz-2: #ffb703;
+  --klotz-3: #3ddc97;
+  --klotz-4: #4cc9f0;
+  --klotz-5: #5b8cff;
+  --klotz-6: #c77dff;
+  --klotz-7: #ff8c42;
   /* Was die Bildschirmtastatur verdeckt – gesetzt von `useTastatur`. */
   --tastatur: 0px;
 
@@ -2658,4 +2666,177 @@ h3 {
 .kreuzchen-fertig {
   color: var(--muted);
   text-decoration: line-through;
+}
+
+/* ---------- Klötzchen ---------- */
+
+.klotz-spiel {
+  /* Größe der kleinen Formen in der Schale. Fünf Zellen müssen in ein Drittel
+     der Breite passen. */
+  --mini: min(4.4vw, 1.1rem);
+}
+
+.klotz-stand {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.4rem 1rem 0;
+}
+
+.klotz-beste {
+  color: var(--present);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.klotz-punkte {
+  font-size: 2.2rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.klotz-meldung {
+  position: absolute;
+  bottom: 0.2rem;
+  left: 50%;
+  transform: translateX(3.5rem);
+  color: var(--correct);
+  font-weight: 700;
+  white-space: nowrap;
+  animation: klotz-steigen 1.1s ease forwards;
+}
+
+@keyframes klotz-steigen {
+  to {
+    opacity: 0;
+    translate: 0 -1.2rem;
+  }
+}
+
+.klotz-buehne {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.75rem;
+}
+
+/* Kopf, Punkte und Schale brauchen zusammen gut 17rem – der Rest der Höhe
+   gehört dem Brett, damit auch kleine Handys ohne Scrollen auskommen. */
+.klotz-brett {
+  width: min(100%, 26rem, calc(100dvh - 17rem));
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  gap: 3px;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  touch-action: none;
+}
+
+.klotz-feld {
+  border-radius: 5px;
+  background: var(--surface-2);
+}
+
+/* Etwas Kante, damit gelegte Felder nach Klotz aussehen und nicht nach Fliese. */
+.klotz-feld[class*='klotz-farbe-'] {
+  box-shadow:
+    inset 0 3px 0 rgb(255 255 255 / 0.28),
+    inset 0 -3px 0 rgb(0 0 0 / 0.22);
+}
+
+.klotz-farbe-1 { background: var(--klotz-1); }
+.klotz-farbe-2 { background: var(--klotz-2); }
+.klotz-farbe-3 { background: var(--klotz-3); }
+.klotz-farbe-4 { background: var(--klotz-4); }
+.klotz-farbe-5 { background: var(--klotz-5); }
+.klotz-farbe-6 { background: var(--klotz-6); }
+.klotz-farbe-7 { background: var(--klotz-7); }
+
+.klotz-vorschau {
+  opacity: 0.45;
+}
+
+/* Was beim Ablegen verschwände, leuchtet schon vorher auf. */
+.klotz-wird-weg {
+  filter: brightness(1.2);
+}
+
+.klotz-weg {
+  animation: klotz-platzen 0.38s ease forwards;
+}
+
+@keyframes klotz-platzen {
+  40% {
+    transform: scale(1.12);
+    filter: brightness(1.6);
+  }
+  to {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+}
+
+.klotz-schale {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 0 0.75rem calc(0.75rem + env(safe-area-inset-bottom));
+  width: min(100%, 28rem);
+  align-self: center;
+}
+
+/* Die ganze Spalte ist Griff, nicht nur die Form – mit dem Daumen trifft man
+   eine kleine Form sonst schwer. */
+.klotz-platz {
+  height: calc(var(--mini) * 5 + 2rem);
+  display: grid;
+  place-items: center;
+  touch-action: none;
+  cursor: grab;
+}
+
+.klotz-form {
+  --zelle: var(--mini);
+  --fuge: 2px;
+  display: grid;
+  gap: var(--fuge);
+}
+
+.klotz-form .klotz-feld {
+  border-radius: 4px;
+}
+
+.klotz-form-klein .klotz-feld {
+  border-radius: 3px;
+  box-shadow:
+    inset 0 2px 0 rgb(255 255 255 / 0.28),
+    inset 0 -2px 0 rgb(0 0 0 / 0.22);
+}
+
+.klotz-form-matt {
+  opacity: 0.3;
+  filter: grayscale(0.7);
+}
+
+.klotz-schwebend {
+  position: fixed;
+  z-index: 5;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.45));
+}
+
+/* Die Inline-Größe aus dem Brett schlägt hier die der Schale. */
+.klotz-schwebend .klotz-form {
+  --zelle: inherit;
+  --fuge: inherit;
+}
+
+.klotz-stat-row {
+  grid-template-columns: repeat(3, 1fr);
 }
