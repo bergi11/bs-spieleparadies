@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { GameProps } from '../registry';
 import { useGameSave } from '../../lib/useGameSave';
+import { RegelnKnopf, Spielregeln } from '../../components/Spielregeln';
 import {
   FELDER,
   LEER,
@@ -98,6 +99,7 @@ export function Crossword({ user, onExit }: GameProps) {
   const [waagerecht, setWaagerecht] = useState(true);
   const [zeigeErgebnis, setZeigeErgebnis] = useState(true);
   const [zeigeStats, setZeigeStats] = useState(false);
+  const [zeigeHilfe, setZeigeHilfe] = useState(false);
   const [zeigeFragen, setZeigeFragen] = useState(false);
   const [meldung, setMeldung] = useState<string | null>(null);
 
@@ -288,7 +290,7 @@ export function Crossword({ user, onExit }: GameProps) {
   // Am Rechner tippt man auf der richtigen Tastatur.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (zeigeStats || zeigeFragen || (zustand !== 'laeuft' && zeigeErgebnis)) return;
+      if (zeigeStats || zeigeFragen || zeigeHilfe || (zustand !== 'laeuft' && zeigeErgebnis)) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
 
       if (event.key === 'Backspace') {
@@ -307,13 +309,24 @@ export function Crossword({ user, onExit }: GameProps) {
 
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [blaettern, buchstabe, feld, loeschen, waehle, zeigeErgebnis, zeigeFragen, zeigeStats, zustand]);
+  }, [
+    blaettern,
+    buchstabe,
+    feld,
+    loeschen,
+    waehle,
+    zeigeErgebnis,
+    zeigeFragen,
+    zeigeHilfe,
+    zeigeStats,
+    zustand,
+  ]);
 
   const offen = raetsel.fragen.filter((f) => !wortStimmt(f, eingabe)).length;
 
   return (
     <div className="game">
-      <header className="game-bar">
+      <header className="game-bar game-bar-raster">
         <button className="icon-button" onClick={onExit} aria-label="Zurück zum Launchpad">
           ←
         </button>
@@ -323,9 +336,12 @@ export function Crossword({ user, onExit }: GameProps) {
             Rätsel {nummer} · {gefuellt(raetsel, eingabe)} Buchstaben
           </span>
         </div>
-        <button className="icon-button" onClick={() => setZeigeStats(true)} aria-label="Statistik">
-          📊
-        </button>
+        <div className="kopf-knoepfe">
+          <RegelnKnopf onClick={() => setZeigeHilfe(true)} />
+          <button className="icon-button" onClick={() => setZeigeStats(true)} aria-label="Statistik">
+            📊
+          </button>
+        </div>
       </header>
 
       <div className="kreuzchen-brett">
@@ -470,6 +486,12 @@ export function Crossword({ user, onExit }: GameProps) {
         </div>
       )}
 
+      {zeigeHilfe && (
+        <Spielregeln titel="Kreuzchen" onClose={() => setZeigeHilfe(false)}>
+          <Regeln />
+        </Spielregeln>
+      )}
+
       {zeigeStats && (
         <StatsSheet
           stats={stats}
@@ -583,5 +605,35 @@ function Stat({ label, value }: { label: string; value: number | string }) {
       <strong>{value}</strong>
       <span>{label}</span>
     </div>
+  );
+}
+
+function Regeln() {
+  return (
+    <>
+      <p>Ein kleines Kreuzworträtsel: Zu jedem Hinweis gehört ein Wort.</p>
+      <ul>
+        <li>
+          Das Wort beginnt im Feld mit der Nummer und läuft waagerecht nach rechts oder senkrecht
+          nach unten.
+        </li>
+        <li>Wo sich zwei Wörter kreuzen, teilen sie sich den Buchstaben.</li>
+        <li>Manche Felder gehören nur zu einem Wort – wie im Schwedenrätsel.</li>
+        <li>Es kommen nur Wörter ohne Ä, Ö, Ü und ß vor.</li>
+      </ul>
+
+      <h3>Bedienung</h3>
+      <ul>
+        <li>Feld antippen und lostippen; die Auswahl wandert im Wort weiter.</li>
+        <li>Dasselbe Feld noch einmal antippen wechselt zwischen waagerecht und senkrecht.</li>
+        <li>Mit ‹ und › blätterst du durch die Fragen; tippst du auf den Hinweis, siehst du alle.</li>
+        <li>Ist das Gitter voll und etwas stimmt nicht, sagt das Spiel Bescheid – aber nicht, wo.</li>
+      </ul>
+
+      <p className="muted">
+        Drei Tipps pro Rätsel, jeder deckt einen Buchstaben im gewählten Wort auf. Auflösen geht
+        über 📊.
+      </p>
+    </>
   );
 }

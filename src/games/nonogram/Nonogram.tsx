@@ -1,6 +1,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GameProps } from '../registry';
 import { useGameSave } from '../../lib/useGameSave';
+import { RegelnKnopf, Spielregeln } from '../../components/Spielregeln';
 import {
   LEER,
   STRICH,
@@ -107,6 +108,7 @@ export function Nonogram({ user, onExit }: GameProps) {
   const [modus, setModus] = useState<typeof VOLL | typeof STRICH>(VOLL);
   const [zeigeErgebnis, setZeigeErgebnis] = useState(true);
   const [zeigeStats, setZeigeStats] = useState(false);
+  const [zeigeHilfe, setZeigeHilfe] = useState(false);
   const malen = useRef<Feldstand | null>(null);
 
   const nummer = Math.min(Math.max(save.bild ?? 1, 1), DATEN.bilder.length);
@@ -273,7 +275,7 @@ export function Nonogram({ user, onExit }: GameProps) {
 
   return (
     <div className="game">
-      <header className="game-bar">
+      <header className="game-bar game-bar-raster">
         <button className="icon-button" onClick={onExit} aria-label="Zurück zum Launchpad">
           ←
         </button>
@@ -283,9 +285,12 @@ export function Nonogram({ user, onExit }: GameProps) {
             Bild {nummer} · {n}×{n} · {gefuellt(gitter)} gefüllt
           </span>
         </div>
-        <button className="icon-button" onClick={() => setZeigeStats(true)} aria-label="Statistik">
-          📊
-        </button>
+        <div className="kopf-knoepfe">
+          <RegelnKnopf onClick={() => setZeigeHilfe(true)} />
+          <button className="icon-button" onClick={() => setZeigeStats(true)} aria-label="Statistik">
+            📊
+          </button>
+        </div>
       </header>
 
       <div className="bild-brett">
@@ -395,6 +400,12 @@ export function Nonogram({ user, onExit }: GameProps) {
         </div>
       )}
 
+      {zeigeHilfe && (
+        <Spielregeln titel="Bildgitter" onClose={() => setZeigeHilfe(false)}>
+          <Regeln />
+        </Spielregeln>
+      )}
+
       {zeigeStats && (
         <StatsSheet
           stats={stats}
@@ -460,5 +471,47 @@ function Stat({ label, value }: { label: string; value: number | string }) {
       <strong>{value}</strong>
       <span>{label}</span>
     </div>
+  );
+}
+
+function Regeln() {
+  return (
+    <>
+      <p>Im Gitter steckt ein Bild. Die Zahlen am Rand verraten, welche Felder gefüllt sind.</p>
+      <ul>
+        <li>Jede Zahl ist ein Block aus so vielen gefüllten Feldern direkt nebeneinander.</li>
+        <li>Die Blöcke kommen in der Reihenfolge, in der die Zahlen stehen.</li>
+        <li>Zwischen zwei Blöcken liegt mindestens ein leeres Feld.</li>
+        <li>Eine 0 heißt: In dieser Reihe bleibt alles leer.</li>
+      </ul>
+      <p className="regeln-beispiel">
+        Beispiel: „3 1" heißt erst drei gefüllte Felder am Stück, dann irgendwo dahinter mit
+        Lücke noch eines.
+      </p>
+
+      <h3>Bedienung</h3>
+      <ul>
+        <li>Oben wählst du Füllen oder Streichen, dann tippst du ein Feld an.</li>
+        <li>
+          Mit dem Finger über mehrere Felder ziehen setzt sie alle gleich. Ein Feld noch einmal
+          antippen nimmt es zurück.
+        </li>
+        <li>Striche sind nur deine Merkhilfe für sicher leere Felder.</li>
+        <li>Wird eine Zahl grau, stimmt ihre Reihe.</li>
+        <li>Orange umrandete Felder sind vorgegeben – ohne sie ginge es nicht ohne Raten.</li>
+      </ul>
+
+      <h3>Für den Anfang</h3>
+      <ul>
+        <li>
+          Große Blöcke zuerst: Ein Block aus 4 in einer Reihe aus 5 Feldern belegt die mittleren 3
+          auf jeden Fall, egal wo er anfängt.
+        </li>
+      </ul>
+
+      <p className="muted">
+        Drei Tipps pro Bild. Was das Bild zeigt, erfährst du erst am Ende. Auflösen geht über 📊.
+      </p>
+    </>
   );
 }

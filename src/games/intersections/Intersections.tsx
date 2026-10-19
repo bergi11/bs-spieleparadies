@@ -1,6 +1,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GameProps } from '../registry';
 import { useGameSave } from '../../lib/useGameSave';
+import { RegelnKnopf, Spielregeln } from '../../components/Spielregeln';
 import {
   FELDER,
   SEITE,
@@ -101,6 +102,7 @@ export function Intersections({ user, onExit }: GameProps) {
   const [offenesFeld, setOffenesFeld] = useState<number | null>(null);
   const [zeigeErgebnis, setZeigeErgebnis] = useState(true);
   const [zeigeStats, setZeigeStats] = useState(false);
+  const [zeigeHilfe, setZeigeHilfe] = useState(false);
 
   const nummer = Math.min(Math.max(save.raetsel ?? 1, 1), DATEN.raetsel.length);
   const raetsel: Raetsel = DATEN.raetsel[nummer - 1];
@@ -257,7 +259,7 @@ export function Intersections({ user, onExit }: GameProps) {
 
   return (
     <div className="game">
-      <header className="game-bar">
+      <header className="game-bar game-bar-raster">
         <button className="icon-button" onClick={onExit} aria-label="Zurück zum Launchpad">
           ←
         </button>
@@ -267,9 +269,12 @@ export function Intersections({ user, onExit }: GameProps) {
             Rätsel {nummer} · {fertig}/{FELDER} Felder
           </span>
         </div>
-        <button className="icon-button" onClick={() => setZeigeStats(true)} aria-label="Statistik">
-          📊
-        </button>
+        <div className="kopf-knoepfe">
+          <RegelnKnopf onClick={() => setZeigeHilfe(true)} />
+          <button className="icon-button" onClick={() => setZeigeStats(true)} aria-label="Statistik">
+            📊
+          </button>
+        </div>
       </header>
 
       <div className="kreuz-brett">
@@ -374,6 +379,12 @@ export function Intersections({ user, onExit }: GameProps) {
             </div>
           </div>
         </div>
+      )}
+
+      {zeigeHilfe && (
+        <Spielregeln titel="Schnittpunkte" onClose={() => setZeigeHilfe(false)}>
+          <Regeln />
+        </Spielregeln>
       )}
 
       {zeigeStats && (
@@ -515,5 +526,36 @@ function Stat({ label, value }: { label: string; value: number | string }) {
       <strong>{value}</strong>
       <span>{label}</span>
     </div>
+  );
+}
+
+function Regeln() {
+  return (
+    <>
+      <p>Finde für jedes der 16 Felder ein Wort, das zu seiner Zeile und seiner Spalte passt.</p>
+      <ul>
+        <li>Die Zeile nennt eine Kategorie, zum Beispiel „Tiere".</li>
+        <li>Die Spalte nennt eine Eigenschaft der Schreibweise, zum Beispiel „beginnt mit S".</li>
+        <li>
+          Ins Feld „Tiere × beginnt mit S" passt also SEEHUND, SPATZ oder STORCH – vorgegeben ist
+          nichts, du denkst dir das Wort selbst aus.
+        </li>
+        <li>Jedes Wort darf im Gitter nur einmal vorkommen.</li>
+      </ul>
+
+      <h3>Bedienung</h3>
+      <ul>
+        <li>Feld antippen, Wort eintippen, Eintragen.</li>
+        <li>Umlaute darfst du ausschreiben: MOEWE wird zu MÖWE.</li>
+        <li>
+          Passt ein Wort nicht, sagt das Spiel, warum – etwa weil es das Wort unter einer anderen
+          Kategorie führt.
+        </li>
+      </ul>
+
+      <p className="muted">
+        Drei Tipps pro Rätsel; verratene Felder bleiben orange. Auflösen geht über 📊.
+      </p>
+    </>
   );
 }

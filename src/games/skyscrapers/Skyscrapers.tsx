@@ -1,6 +1,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import type { GameProps } from '../registry';
 import { useGameSave } from '../../lib/useGameSave';
+import { RegelnKnopf, Spielregeln } from '../../components/Spielregeln';
 import {
   TIPPS,
   doppelte,
@@ -103,6 +104,7 @@ export function Skyscrapers({ user, onExit }: GameProps) {
   const [notizModus, setNotizModus] = useState(false);
   const [zeigeErgebnis, setZeigeErgebnis] = useState(true);
   const [zeigeStats, setZeigeStats] = useState(false);
+  const [zeigeHilfe, setZeigeHilfe] = useState(false);
 
   const nummer = Math.min(Math.max(save.raetsel ?? 1, 1), DATEN.raetsel.length);
   const raetsel: Raetsel = DATEN.raetsel[nummer - 1];
@@ -284,7 +286,7 @@ export function Skyscrapers({ user, onExit }: GameProps) {
 
   return (
     <div className="game">
-      <header className="game-bar">
+      <header className="game-bar game-bar-raster">
         <button className="icon-button" onClick={onExit} aria-label="Zurück zum Launchpad">
           ←
         </button>
@@ -294,9 +296,12 @@ export function Skyscrapers({ user, onExit }: GameProps) {
             Rätsel {nummer} · {n}×{n} · {fertig}/{felder}
           </span>
         </div>
-        <button className="icon-button" onClick={() => setZeigeStats(true)} aria-label="Statistik">
-          📊
-        </button>
+        <div className="kopf-knoepfe">
+          <RegelnKnopf onClick={() => setZeigeHilfe(true)} />
+          <button className="icon-button" onClick={() => setZeigeStats(true)} aria-label="Statistik">
+            📊
+          </button>
+        </div>
       </header>
 
       <div className="turm-brett">
@@ -437,6 +442,12 @@ export function Skyscrapers({ user, onExit }: GameProps) {
         </div>
       )}
 
+      {zeigeHilfe && (
+        <Spielregeln titel="Wolkenkratzer" onClose={() => setZeigeHilfe(false)}>
+          <Regeln />
+        </Spielregeln>
+      )}
+
       {zeigeStats && (
         <StatsSheet
           stats={stats}
@@ -502,5 +513,54 @@ function Stat({ label, value }: { label: string; value: number | string }) {
       <strong>{value}</strong>
       <span>{label}</span>
     </div>
+  );
+}
+
+function Regeln() {
+  return (
+    <>
+      <p>
+        Baue eine Stadt: In jedes Feld kommt ein Haus mit einer Höhe von 1 bis zur Größe des
+        Gitters.
+      </p>
+      <ul>
+        <li>Jede Höhe steht in jeder Zeile und jeder Spalte genau einmal.</li>
+        <li>
+          Die Zahl am Rand sagt, wie viele Häuser man von dort aus sieht. Ein höheres Haus
+          verdeckt alle niedrigeren dahinter.
+        </li>
+        <li>Ohne Zahl am Rand gibt es dort keinen Hinweis.</li>
+      </ul>
+      <p className="regeln-beispiel">
+        Beispiel: In der Reihe 2 1 4 3 sieht man von links zwei Häuser (die 2 und die 4), von
+        rechts ebenfalls zwei (die 3 und die 4).
+      </p>
+
+      <h3>Bedienung</h3>
+      <ul>
+        <li>Feld antippen, dann die Höhe auf der Leiste darunter.</li>
+        <li>Dieselbe Höhe noch einmal tippen oder ⌫ macht das Feld wieder leer.</li>
+        <li>
+          Mit ✏️ Notizen merkst du dir mögliche Höhen nur vor. Setzt du eine Höhe, verschwindet sie
+          aus den Notizen ihrer Zeile und Spalte.
+        </li>
+        <li>
+          Rot heißt: Diese Höhe steht doppelt, oder eine volle Reihe passt nicht zu ihrer Zahl.
+        </li>
+      </ul>
+
+      <h3>Für den Anfang</h3>
+      <ul>
+        <li>Eine 1 am Rand: Das höchste Haus steht direkt daneben.</li>
+        <li>
+          Steht am Rand die Größe des Gitters – etwa eine 5 bei 5×5 –, steigt die Reihe von dort
+          aus 1, 2, 3 … an.
+        </li>
+      </ul>
+
+      <p className="muted">
+        Drei Tipps pro Rätsel; verratene Felder bleiben orange. Auflösen geht über 📊.
+      </p>
+    </>
   );
 }

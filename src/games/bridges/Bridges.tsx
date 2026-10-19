@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GameProps } from '../registry';
 import { useGameSave } from '../../lib/useGameSave';
+import { RegelnKnopf, Spielregeln } from '../../components/Spielregeln';
 import {
   TIPPS,
   frei,
@@ -91,6 +92,7 @@ export function Bridges({ user, onExit }: GameProps) {
   const [meldung, setMeldung] = useState<string | null>(null);
   const [zeigeErgebnis, setZeigeErgebnis] = useState(true);
   const [zeigeStats, setZeigeStats] = useState(false);
+  const [zeigeHilfe, setZeigeHilfe] = useState(false);
   const gedrueckt = useRef<number | null>(null);
 
   const nummer = Math.min(Math.max(save.raetsel ?? 1, 1), DATEN.raetsel.length);
@@ -293,7 +295,7 @@ export function Bridges({ user, onExit }: GameProps) {
 
   return (
     <div className="game">
-      <header className="game-bar">
+      <header className="game-bar game-bar-raster">
         <button className="icon-button" onClick={onExit} aria-label="Zurück zum Launchpad">
           ←
         </button>
@@ -304,9 +306,12 @@ export function Bridges({ user, onExit }: GameProps) {
             {offen === 0 ? 'alle Zahlen stimmen' : `${offen} offen`}
           </span>
         </div>
-        <button className="icon-button" onClick={() => setZeigeStats(true)} aria-label="Statistik">
-          📊
-        </button>
+        <div className="kopf-knoepfe">
+          <RegelnKnopf onClick={() => setZeigeHilfe(true)} />
+          <button className="icon-button" onClick={() => setZeigeStats(true)} aria-label="Statistik">
+            📊
+          </button>
+        </div>
       </header>
 
       <div className="insel-brett">
@@ -433,6 +438,12 @@ export function Bridges({ user, onExit }: GameProps) {
         </div>
       )}
 
+      {zeigeHilfe && (
+        <Spielregeln titel="Brücken" onClose={() => setZeigeHilfe(false)}>
+          <Regeln />
+        </Spielregeln>
+      )}
+
       {zeigeStats && (
         <StatsSheet
           stats={stats}
@@ -498,5 +509,44 @@ function Stat({ label, value }: { label: string; value: number | string }) {
       <strong>{value}</strong>
       <span>{label}</span>
     </div>
+  );
+}
+
+function Regeln() {
+  return (
+    <>
+      <p>Verbinde alle Inseln mit Brücken zu einem einzigen Netz.</p>
+      <ul>
+        <li>Die Zahl auf einer Insel sagt, wie viele Brücken dort ankommen.</li>
+        <li>Brücken laufen nur waagerecht oder senkrecht, gerade von Insel zu Insel.</li>
+        <li>Zwischen zwei Inseln liegen höchstens zwei Brücken.</li>
+        <li>Brücken kreuzen sich nicht und führen nicht über eine Insel.</li>
+        <li>Am Ende muss man von jeder Insel zu jeder anderen kommen.</li>
+      </ul>
+
+      <h3>Bedienung</h3>
+      <ul>
+        <li>Von einer Insel zur anderen ziehen – oder beide nacheinander antippen.</li>
+        <li>Jedes weitere Mal zwischen denselben Inseln: eine Brücke, zwei, keine.</li>
+        <li>Eine angetippte Insel zeigt gestrichelt, wohin sie noch eine Brücke bauen kann.</li>
+        <li>Grün heißt: Die Zahl ist erfüllt. Rot heißt: zu viele Brücken.</li>
+      </ul>
+
+      <h3>Für den Anfang</h3>
+      <ul>
+        <li>
+          Eine Insel mit 4 und nur zwei Nachbarn braucht zu beiden je zwei Brücken – mehr als zwei
+          pro Nachbar gibt es nicht.
+        </li>
+        <li>
+          Vorsicht mit kleinen Gruppen: Zwei Inseln mit einer 1, die nur einander verbinden, wären
+          vom Rest abgeschnitten.
+        </li>
+      </ul>
+
+      <p className="muted">
+        Drei Tipps pro Rätsel; Brücken aus einem Tipp bleiben orange. Auflösen geht über 📊.
+      </p>
+    </>
   );
 }
